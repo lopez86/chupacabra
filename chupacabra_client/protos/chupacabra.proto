@@ -1,0 +1,105 @@
+syntax = "proto3";
+package chupacabra;
+
+import "google/protobuf/empty.proto";
+
+import "protos/game_structs.proto";
+
+
+// Request the creation of a new user
+message UserRequest {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+}
+
+// Response to a user creation request
+message UserResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+// Request a new session
+message SessionRequest {
+    string username = 1;
+    string password = 2;
+}
+
+// Response to a session request
+message SessionResponse {
+    bool success = 1;
+    string message = 2;
+    string session_id = 3;
+}
+
+// Request a new game
+message GameRequest {
+    string session_id = 1;
+    string game_type = 2;
+}
+
+// Response to a game request
+message GameRequestResponse {
+    bool success = 1;
+    string message = 2;
+    string request_id = 3;
+}
+
+// Check the status to see if the game is available.
+message GameRequestStatus {
+    string session_id = 1;
+    string game_type = 2;
+    string request_id = 3;
+}
+
+// Response to a status request
+message GameRequestStatusResponse {
+    bool game_found = 1;
+    string game_id = 2;
+    string message = 3;
+}
+
+// See what games are available on the server
+message AvailableGamesResponse {
+    repeated game_structs.GameDescription descriptions = 1;
+}
+
+// Represents the unique identifiers needed to access a game
+message PlayerGameInfo {
+    string session_id = 1;
+    string game_type = 2;
+    string game_id = 3;
+}
+
+// Try to make a move
+message MoveRequest {
+    PlayerGameInfo game_info = 1;
+    game_structs.Move move = 2;
+}
+
+// Get the current game state
+message GameStateRequest{
+    PlayerGameInfo game_info = 1;
+}
+
+// Defines the service
+service ChupacabraServer {
+    // Register a new user
+    rpc RegisterUser(UserRequest) returns (UserResponse) {}
+    // Begin a new session
+    rpc BeginSession(SessionRequest) returns (SessionResponse) {}
+    // List games available on the server
+    rpc ListAvailableGames(PlayerGameInfo) returns (AvailableGamesResponse) {}
+    // Request a new game
+    rpc RequestGame(GameRequest) returns (GameRequestResponse) {}
+    // Check if the game is available
+    rpc CheckGameRequest(GameRequestStatus) returns (GameRequestStatusResponse) {}
+    // Get the game state
+    rpc GetGameState(PlayerGameInfo) returns (game_structs.GameStatusInfo) {}
+    // See what legal moves are available
+    rpc CheckLegalMoves(PlayerGameInfo) returns (game_structs.GameMoves) {}
+    // Try to make a move
+    rpc MakeMove(MoveRequest) returns (game_structs.GameActionResponse) {}
+    // Forfeit the game
+    rpc ForfeitGame(PlayerGameInfo) returns (game_structs.GameActionResponse) {}
+}

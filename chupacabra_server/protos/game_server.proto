@@ -1,0 +1,50 @@
+syntax = "proto3";
+package game_server;
+
+import "google/protobuf/empty.proto";
+
+import "../chupacabra_client/protos/game_structs.proto";
+
+// Internal info needed about a player
+message InternalPlayerInfo {
+    string player_id = 1; // The internal player id
+    game_structs.PlayerInfo player_info = 2;
+}
+
+// If a user is joining a game, the response
+message GameResponse {
+    bool success = 1;
+    string message = 2;
+    game_structs.GameStatusInfo game_status = 3;
+}
+
+// A request for a new game
+message GameRequest {
+    string player_id = 1;
+    game_structs.PlayerInfo player_info = 2;
+    string game_id = 3;
+}
+
+// Will uniquely identify a player in a game
+message UserGameInfo {
+    string player_id = 1;
+    string game_id = 2;
+}
+
+// Request a move
+message MoveRequest {
+    UserGameInfo game_info = 1;
+    game_structs.Move move = 2;
+}
+
+service GameServer {
+    rpc RequestGame(GameRequest) returns (GameResponse) {}
+    rpc JoinGame(GameRequest) returns (GameResponse) {}
+    rpc FindGame(GameRequest) returns (GameResponse) {}
+    rpc DescribeGame(google.protobuf.Empty) returns (game_structs.GameDescription) {}
+    rpc DescribeMoves(google.protobuf.Empty) returns (game_structs.GameMoves) {}
+    rpc MakeMove(MoveRequest) returns (game_structs.GameActionResponse) {}
+    rpc GetGameStatus(UserGameInfo) returns (game_structs.GameStatusInfo) {}
+    rpc GetLegalMoves(UserGameInfo) returns (game_structs.GameMoves) {}
+    rpc ForfeitGame(UserGameInfo) returns (game_structs.GameActionResponse) {}
+}

@@ -1,0 +1,134 @@
+syntax = "proto3";
+package game_structs;
+
+import "google/protobuf/empty.proto";
+
+
+/////////////////////////////////////////
+//                                     //
+// Metadata about the particular type  //
+// of game being played                //
+//                                     //
+/////////////////////////////////////////
+
+
+// Description of a move available in the game
+message MoveDescription {
+    string name = 1;
+    string description = 2;
+    repeated string modes = 3;  // If this is only available on certain special actions
+}
+
+// A description of the game
+message GameDescription {
+    string name = 1;
+    string description = 2;
+}
+
+// A list of game moves
+message GameMoves {
+    repeated MoveDescription moves = 1;
+}
+
+/////////////////////////////////////////
+//                                     //
+// Types describing the basic elements //
+// of the game                         //
+//                                     //
+/////////////////////////////////////////
+
+
+// Value for a single coordinate on the field of play
+message Coordinate {
+    string name = 1;
+    int32 value = 2;
+}
+
+// A full description of a position on the field of play
+message Coordinates {
+    repeated Coordinate values = 1;
+}
+
+// Represents a move a single game piece
+message GamePieceMove {
+    string piece_id = 1;
+    repeated Coordinates coordinates = 2;
+    string comment = 3;
+}
+
+// Represents a move. Ideally, the move description will
+// describe the necessary formulation.
+message Move {
+    string move_name = 1;
+    repeated GamePieceMove piece_moves = 2;
+    string comment = 3;
+}
+
+
+// Description of the status of a game piece
+message GamePiece {
+    string id = 1;
+    string name = 2;
+    string player = 3;
+    Coordinates location = 4;
+}
+
+// Description of a particular piece of the field of play
+// This can include things like card stacks, hands,
+// or traditional 2D game boards
+message GameBoard {
+    string id = 1;
+    string name = 2;
+    string type = 3;
+    repeated GamePiece pieces = 4;
+}
+
+
+/////////////////////////////////////////
+//                                     //
+// Types describing the status of the  //
+// of the current game                 //
+//                                     //
+/////////////////////////////////////////
+
+// Basic info on a player
+message PlayerInfo {
+    string id = 1;
+    string name = 2;
+    string level = 3;
+    string team = 4;
+}
+
+// Scores
+message GameScore {
+    string player_id = 1;
+    string score_type = 2;
+    int32 int_score = 3;
+    float float_score = 4;
+}
+
+// Current state of the board
+message GameState {
+    repeated GameBoard boards = 1;
+    repeated GameScore scores = 2;
+    string mode = 3;
+    int32 turn_time_remaining = 4; // in seconds
+    int32 game_time_remaining = 5; // in seconds
+}
+
+// The current status of a game
+message GameStatusInfo {
+    string id = 1;
+    string status = 2;
+    string status_comment = 3;
+    repeated PlayerInfo players = 4;
+    GameState state = 5;
+    GameMoves legal_moves = 6;
+}
+
+// If an action was made, the new status
+message GameActionResponse {
+    bool success = 1;
+    string message = 2;
+    GameStatusInfo status_info = 3;
+}
