@@ -1,9 +1,7 @@
 syntax = "proto3";
 package chupacabra;
 
-import "google/protobuf/empty.proto";
-
-import "protos/game_structs.proto";
+import "chupacabra_client/protos/game_structs.proto";
 
 
 // Request the creation of a new user

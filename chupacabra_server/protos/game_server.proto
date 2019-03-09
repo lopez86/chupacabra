@@ -3,7 +3,7 @@ package game_server;
 
 import "google/protobuf/empty.proto";
 
-import "../chupacabra_client/protos/game_structs.proto";
+import "chupacabra_client/protos/game_structs.proto";
 
 // Internal info needed about a player
 message InternalPlayerInfo {
