@@ -37,14 +37,20 @@ message MoveRequest {
     game_structs.Move move = 2;
 }
 
+// A fairly generic game server
 service GameServer {
+    // Request a new game
     rpc RequestGame(GameRequest) returns (GameResponse) {}
-    rpc JoinGame(GameRequest) returns (GameResponse) {}
-    rpc FindGame(GameRequest) returns (GameResponse) {}
+    // Describe the game contained in this server
     rpc DescribeGame(google.protobuf.Empty) returns (game_structs.GameDescription) {}
+    // Describe the moves available in this game
     rpc DescribeMoves(google.protobuf.Empty) returns (game_structs.GameMoves) {}
+    // Make a move
     rpc MakeMove(MoveRequest) returns (game_structs.GameActionResponse) {}
+    // Get the game status
     rpc GetGameStatus(UserGameInfo) returns (game_structs.GameStatusInfo) {}
+    // Get the moves available to the user at this point in the game
     rpc GetLegalMoves(UserGameInfo) returns (game_structs.GameMoves) {}
+    // Forfeit the game
     rpc ForfeitGame(UserGameInfo) returns (game_structs.GameActionResponse) {}
 }
