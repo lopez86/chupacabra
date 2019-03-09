@@ -95,7 +95,6 @@ class RedisCacheHandler:
 
         return True
 
-
     @contextmanager
     def lock(self, key: str, blocking_timeout: int) -> AbstractContextManager:
         """Get a lock on a resource."""
