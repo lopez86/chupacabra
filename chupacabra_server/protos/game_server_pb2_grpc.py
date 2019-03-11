@@ -19,7 +19,12 @@ class GameServerStub(object):
     self.RequestGame = channel.unary_unary(
         '/game_server.GameServer/RequestGame',
         request_serializer=chupacabra__server_dot_protos_dot_game__server__pb2.GameRequest.SerializeToString,
-        response_deserializer=chupacabra__server_dot_protos_dot_game__server__pb2.GameResponse.FromString,
+        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameRequestResponse.FromString,
+        )
+    self.CheckGameRequest = channel.unary_unary(
+        '/game_server.GameServer/CheckGameRequest',
+        request_serializer=chupacabra__server_dot_protos_dot_game__server__pb2.GameRequestStatusRequest.SerializeToString,
+        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameRequestStatusResponse.FromString,
         )
     self.DescribeGame = channel.unary_unary(
         '/game_server.GameServer/DescribeGame',
@@ -29,27 +34,27 @@ class GameServerStub(object):
     self.DescribeMoves = channel.unary_unary(
         '/game_server.GameServer/DescribeMoves',
         request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameMoves.FromString,
+        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameMovesResponse.FromString,
         )
     self.MakeMove = channel.unary_unary(
         '/game_server.GameServer/MakeMove',
         request_serializer=chupacabra__server_dot_protos_dot_game__server__pb2.MoveRequest.SerializeToString,
-        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameActionResponse.FromString,
+        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameStatusResponse.FromString,
         )
     self.GetGameStatus = channel.unary_unary(
         '/game_server.GameServer/GetGameStatus',
         request_serializer=chupacabra__server_dot_protos_dot_game__server__pb2.UserGameInfo.SerializeToString,
-        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameStatusInfo.FromString,
+        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameStatusResponse.FromString,
         )
     self.GetLegalMoves = channel.unary_unary(
         '/game_server.GameServer/GetLegalMoves',
         request_serializer=chupacabra__server_dot_protos_dot_game__server__pb2.UserGameInfo.SerializeToString,
-        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameMoves.FromString,
+        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.LegalMovesResponse.FromString,
         )
     self.ForfeitGame = channel.unary_unary(
         '/game_server.GameServer/ForfeitGame',
         request_serializer=chupacabra__server_dot_protos_dot_game__server__pb2.UserGameInfo.SerializeToString,
-        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameActionResponse.FromString,
+        response_deserializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameStatusResponse.FromString,
         )
 
 
@@ -59,6 +64,13 @@ class GameServerServicer(object):
 
   def RequestGame(self, request, context):
     """Request a new game
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def CheckGameRequest(self, request, context):
+    """Check a request
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -112,7 +124,12 @@ def add_GameServerServicer_to_server(servicer, server):
       'RequestGame': grpc.unary_unary_rpc_method_handler(
           servicer.RequestGame,
           request_deserializer=chupacabra__server_dot_protos_dot_game__server__pb2.GameRequest.FromString,
-          response_serializer=chupacabra__server_dot_protos_dot_game__server__pb2.GameResponse.SerializeToString,
+          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameRequestResponse.SerializeToString,
+      ),
+      'CheckGameRequest': grpc.unary_unary_rpc_method_handler(
+          servicer.CheckGameRequest,
+          request_deserializer=chupacabra__server_dot_protos_dot_game__server__pb2.GameRequestStatusRequest.FromString,
+          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameRequestStatusResponse.SerializeToString,
       ),
       'DescribeGame': grpc.unary_unary_rpc_method_handler(
           servicer.DescribeGame,
@@ -122,27 +139,27 @@ def add_GameServerServicer_to_server(servicer, server):
       'DescribeMoves': grpc.unary_unary_rpc_method_handler(
           servicer.DescribeMoves,
           request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameMoves.SerializeToString,
+          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameMovesResponse.SerializeToString,
       ),
       'MakeMove': grpc.unary_unary_rpc_method_handler(
           servicer.MakeMove,
           request_deserializer=chupacabra__server_dot_protos_dot_game__server__pb2.MoveRequest.FromString,
-          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameActionResponse.SerializeToString,
+          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameStatusResponse.SerializeToString,
       ),
       'GetGameStatus': grpc.unary_unary_rpc_method_handler(
           servicer.GetGameStatus,
           request_deserializer=chupacabra__server_dot_protos_dot_game__server__pb2.UserGameInfo.FromString,
-          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameStatusInfo.SerializeToString,
+          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameStatusResponse.SerializeToString,
       ),
       'GetLegalMoves': grpc.unary_unary_rpc_method_handler(
           servicer.GetLegalMoves,
           request_deserializer=chupacabra__server_dot_protos_dot_game__server__pb2.UserGameInfo.FromString,
-          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameMoves.SerializeToString,
+          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.LegalMovesResponse.SerializeToString,
       ),
       'ForfeitGame': grpc.unary_unary_rpc_method_handler(
           servicer.ForfeitGame,
           request_deserializer=chupacabra__server_dot_protos_dot_game__server__pb2.UserGameInfo.FromString,
-          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameActionResponse.SerializeToString,
+          response_serializer=chupacabra__client_dot_protos_dot_game__structs__pb2.GameStatusResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

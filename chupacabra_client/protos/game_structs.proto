@@ -23,8 +23,14 @@ message GameDescription {
 }
 
 // A list of game moves
-message GameMoves {
+message GameMovesResponse {
     repeated MoveDescription moves = 1;
+}
+
+message LegalMovesResponse {
+    bool success = 1;
+    string message = 2;
+    repeated string moves = 3;
 }
 
 /////////////////////////////////////////
@@ -43,7 +49,8 @@ message Coordinate {
 
 // A full description of a position on the field of play
 message Coordinates {
-    repeated Coordinate values = 1;
+    string name = 1;
+    repeated Coordinate values = 2;
 }
 
 // Represents a move a single game piece
@@ -81,6 +88,22 @@ message GameBoard {
 }
 
 
+// Response to a status request
+message GameRequestStatusResponse {
+    bool game_found = 1;
+    string game_id = 2;
+    string message = 3;
+}
+
+
+// Response to a game request
+message GameRequestResponse {
+    bool success = 1;
+    string message = 2;
+    string request_id = 3;
+}
+
+
 /////////////////////////////////////////
 //                                     //
 // Types describing the status of the  //
@@ -102,12 +125,19 @@ message GameScore {
     string score_type = 2;
     int32 int_score = 3;
     float float_score = 4;
+    string comment = 5;
+}
+
+message GameStatus {
+    string status = 1;
+    string comment = 2;
+    repeated GameScore scores = 3;
 }
 
 // Current state of the board
 message GameState {
-    repeated GameBoard boards = 1;
-    repeated GameScore scores = 2;
+    GameStatus status = 1;
+    repeated GameBoard boards = 2;
     string mode = 3;
     int32 turn_time_remaining = 4; // in seconds
     int32 game_time_remaining = 5; // in seconds
@@ -116,15 +146,13 @@ message GameState {
 // The current status of a game
 message GameStatusInfo {
     string id = 1;
-    string status = 2;
-    string status_comment = 3;
-    repeated PlayerInfo players = 4;
-    GameState state = 5;
-    GameMoves legal_moves = 6;
+    repeated PlayerInfo players = 2;
+    GameState state = 3;
+    repeated string legal_moves = 4;
 }
 
 // If an action was made, the new status
-message GameActionResponse {
+message GameStatusResponse {
     bool success = 1;
     string message = 2;
     GameStatusInfo status_info = 3;

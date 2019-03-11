@@ -25,6 +25,12 @@ message GameRequest {
     string game_id = 3;
 }
 
+// A status request for a game
+message GameRequestStatusRequest {
+    string player_id = 1;
+    string request_id = 2;
+}
+
 // Will uniquely identify a player in a game
 message UserGameInfo {
     string player_id = 1;
@@ -40,17 +46,19 @@ message MoveRequest {
 // A fairly generic game server
 service GameServer {
     // Request a new game
-    rpc RequestGame(GameRequest) returns (GameResponse) {}
+    rpc RequestGame(GameRequest) returns (game_structs.GameRequestResponse) {}
+    // Check a request
+    rpc CheckGameRequest(GameRequestStatusRequest) returns (game_structs.GameRequestStatusResponse) {}
     // Describe the game contained in this server
     rpc DescribeGame(google.protobuf.Empty) returns (game_structs.GameDescription) {}
     // Describe the moves available in this game
-    rpc DescribeMoves(google.protobuf.Empty) returns (game_structs.GameMoves) {}
+    rpc DescribeMoves(google.protobuf.Empty) returns (game_structs.GameMovesResponse) {}
     // Make a move
-    rpc MakeMove(MoveRequest) returns (game_structs.GameActionResponse) {}
+    rpc MakeMove(MoveRequest) returns (game_structs.GameStatusResponse) {}
     // Get the game status
-    rpc GetGameStatus(UserGameInfo) returns (game_structs.GameStatusInfo) {}
+    rpc GetGameStatus(UserGameInfo) returns (game_structs.GameStatusResponse) {}
     // Get the moves available to the user at this point in the game
-    rpc GetLegalMoves(UserGameInfo) returns (game_structs.GameMoves) {}
+    rpc GetLegalMoves(UserGameInfo) returns (game_structs.LegalMovesResponse) {}
     // Forfeit the game
-    rpc ForfeitGame(UserGameInfo) returns (game_structs.GameActionResponse) {}
+    rpc ForfeitGame(UserGameInfo) returns (game_structs.GameStatusResponse) {}
 }

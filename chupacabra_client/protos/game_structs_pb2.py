@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='chupacabra_client/protos/game_structs.proto',
   package='game_structs',
   syntax='proto3',
-  serialized_pb=_b('\n+chupacabra_client/protos/game_structs.proto\x12\x0cgame_structs\"C\n\x0fMoveDescription\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\r\n\x05modes\x18\x03 \x03(\t\"4\n\x0fGameDescription\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\"9\n\tGameMoves\x12,\n\x05moves\x18\x01 \x03(\x0b\x32\x1d.game_structs.MoveDescription\")\n\nCoordinate\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05\"7\n\x0b\x43oordinates\x12(\n\x06values\x18\x01 \x03(\x0b\x32\x18.game_structs.Coordinate\"b\n\rGamePieceMove\x12\x10\n\x08piece_id\x18\x01 \x01(\t\x12.\n\x0b\x63oordinates\x18\x02 \x03(\x0b\x32\x19.game_structs.Coordinates\x12\x0f\n\x07\x63omment\x18\x03 \x01(\t\"\\\n\x04Move\x12\x11\n\tmove_name\x18\x01 \x01(\t\x12\x30\n\x0bpiece_moves\x18\x02 \x03(\x0b\x32\x1b.game_structs.GamePieceMove\x12\x0f\n\x07\x63omment\x18\x03 \x01(\t\"b\n\tGamePiece\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06player\x18\x03 \x01(\t\x12+\n\x08location\x18\x04 \x01(\x0b\x32\x19.game_structs.Coordinates\"\\\n\tGameBoard\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\'\n\x06pieces\x18\x04 \x03(\x0b\x32\x17.game_structs.GamePiece\"C\n\nPlayerInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05level\x18\x03 \x01(\t\x12\x0c\n\x04team\x18\x04 \x01(\t\"Z\n\tGameScore\x12\x11\n\tplayer_id\x18\x01 \x01(\t\x12\x12\n\nscore_type\x18\x02 \x01(\t\x12\x11\n\tint_score\x18\x03 \x01(\x05\x12\x13\n\x0b\x66loat_score\x18\x04 \x01(\x02\"\xa5\x01\n\tGameState\x12\'\n\x06\x62oards\x18\x01 \x03(\x0b\x32\x17.game_structs.GameBoard\x12\'\n\x06scores\x18\x02 \x03(\x0b\x32\x17.game_structs.GameScore\x12\x0c\n\x04mode\x18\x03 \x01(\t\x12\x1b\n\x13turn_time_remaining\x18\x04 \x01(\x05\x12\x1b\n\x13game_time_remaining\x18\x05 \x01(\x05\"\xc5\x01\n\x0eGameStatusInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x16\n\x0estatus_comment\x18\x03 \x01(\t\x12)\n\x07players\x18\x04 \x03(\x0b\x32\x18.game_structs.PlayerInfo\x12&\n\x05state\x18\x05 \x01(\x0b\x32\x17.game_structs.GameState\x12,\n\x0blegal_moves\x18\x06 \x01(\x0b\x32\x17.game_structs.GameMoves\"i\n\x12GameActionResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x31\n\x0bstatus_info\x18\x03 \x01(\x0b\x32\x1c.game_structs.GameStatusInfob\x06proto3')
+  serialized_pb=_b('\n+chupacabra_client/protos/game_structs.proto\x12\x0cgame_structs\"C\n\x0fMoveDescription\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\r\n\x05modes\x18\x03 \x03(\t\"4\n\x0fGameDescription\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\"A\n\x11GameMovesResponse\x12,\n\x05moves\x18\x01 \x03(\x0b\x32\x1d.game_structs.MoveDescription\"E\n\x12LegalMovesResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\r\n\x05moves\x18\x03 \x03(\t\")\n\nCoordinate\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05\"E\n\x0b\x43oordinates\x12\x0c\n\x04name\x18\x01 \x01(\t\x12(\n\x06values\x18\x02 \x03(\x0b\x32\x18.game_structs.Coordinate\"b\n\rGamePieceMove\x12\x10\n\x08piece_id\x18\x01 \x01(\t\x12.\n\x0b\x63oordinates\x18\x02 \x03(\x0b\x32\x19.game_structs.Coordinates\x12\x0f\n\x07\x63omment\x18\x03 \x01(\t\"\\\n\x04Move\x12\x11\n\tmove_name\x18\x01 \x01(\t\x12\x30\n\x0bpiece_moves\x18\x02 \x03(\x0b\x32\x1b.game_structs.GamePieceMove\x12\x0f\n\x07\x63omment\x18\x03 \x01(\t\"b\n\tGamePiece\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06player\x18\x03 \x01(\t\x12+\n\x08location\x18\x04 \x01(\x0b\x32\x19.game_structs.Coordinates\"\\\n\tGameBoard\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\'\n\x06pieces\x18\x04 \x03(\x0b\x32\x17.game_structs.GamePiece\"Q\n\x19GameRequestStatusResponse\x12\x12\n\ngame_found\x18\x01 \x01(\x08\x12\x0f\n\x07game_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"K\n\x13GameRequestResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x12\n\nrequest_id\x18\x03 \x01(\t\"C\n\nPlayerInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05level\x18\x03 \x01(\t\x12\x0c\n\x04team\x18\x04 \x01(\t\"k\n\tGameScore\x12\x11\n\tplayer_id\x18\x01 \x01(\t\x12\x12\n\nscore_type\x18\x02 \x01(\t\x12\x11\n\tint_score\x18\x03 \x01(\x05\x12\x13\n\x0b\x66loat_score\x18\x04 \x01(\x02\x12\x0f\n\x07\x63omment\x18\x05 \x01(\t\"V\n\nGameStatus\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\'\n\x06scores\x18\x03 \x03(\x0b\x32\x17.game_structs.GameScore\"\xa6\x01\n\tGameState\x12(\n\x06status\x18\x01 \x01(\x0b\x32\x18.game_structs.GameStatus\x12\'\n\x06\x62oards\x18\x02 \x03(\x0b\x32\x17.game_structs.GameBoard\x12\x0c\n\x04mode\x18\x03 \x01(\t\x12\x1b\n\x13turn_time_remaining\x18\x04 \x01(\x05\x12\x1b\n\x13game_time_remaining\x18\x05 \x01(\x05\"\x84\x01\n\x0eGameStatusInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12)\n\x07players\x18\x02 \x03(\x0b\x32\x18.game_structs.PlayerInfo\x12&\n\x05state\x18\x03 \x01(\x0b\x32\x17.game_structs.GameState\x12\x13\n\x0blegal_moves\x18\x04 \x03(\t\"i\n\x12GameStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x31\n\x0bstatus_info\x18\x03 \x01(\x0b\x32\x1c.game_structs.GameStatusInfob\x06proto3')
 )
 
 
@@ -108,15 +108,15 @@ _GAMEDESCRIPTION = _descriptor.Descriptor(
 )
 
 
-_GAMEMOVES = _descriptor.Descriptor(
-  name='GameMoves',
-  full_name='game_structs.GameMoves',
+_GAMEMOVESRESPONSE = _descriptor.Descriptor(
+  name='GameMovesResponse',
+  full_name='game_structs.GameMovesResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='moves', full_name='game_structs.GameMoves.moves', index=0,
+      name='moves', full_name='game_structs.GameMovesResponse.moves', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -135,7 +135,52 @@ _GAMEMOVES = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=184,
-  serialized_end=241,
+  serialized_end=249,
+)
+
+
+_LEGALMOVESRESPONSE = _descriptor.Descriptor(
+  name='LegalMovesResponse',
+  full_name='game_structs.LegalMovesResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='success', full_name='game_structs.LegalMovesResponse.success', index=0,
+      number=1, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='message', full_name='game_structs.LegalMovesResponse.message', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='moves', full_name='game_structs.LegalMovesResponse.moves', index=2,
+      number=3, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=251,
+  serialized_end=320,
 )
 
 
@@ -172,8 +217,8 @@ _COORDINATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=243,
-  serialized_end=284,
+  serialized_start=322,
+  serialized_end=363,
 )
 
 
@@ -185,8 +230,15 @@ _COORDINATES = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='values', full_name='game_structs.Coordinates.values', index=0,
-      number=1, type=11, cpp_type=10, label=3,
+      name='name', full_name='game_structs.Coordinates.name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='values', full_name='game_structs.Coordinates.values', index=1,
+      number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -203,8 +255,8 @@ _COORDINATES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=286,
-  serialized_end=341,
+  serialized_start=365,
+  serialized_end=434,
 )
 
 
@@ -248,8 +300,8 @@ _GAMEPIECEMOVE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=343,
-  serialized_end=441,
+  serialized_start=436,
+  serialized_end=534,
 )
 
 
@@ -293,8 +345,8 @@ _MOVE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=443,
-  serialized_end=535,
+  serialized_start=536,
+  serialized_end=628,
 )
 
 
@@ -345,8 +397,8 @@ _GAMEPIECE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=537,
-  serialized_end=635,
+  serialized_start=630,
+  serialized_end=728,
 )
 
 
@@ -397,8 +449,98 @@ _GAMEBOARD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=637,
-  serialized_end=729,
+  serialized_start=730,
+  serialized_end=822,
+)
+
+
+_GAMEREQUESTSTATUSRESPONSE = _descriptor.Descriptor(
+  name='GameRequestStatusResponse',
+  full_name='game_structs.GameRequestStatusResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='game_found', full_name='game_structs.GameRequestStatusResponse.game_found', index=0,
+      number=1, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='game_id', full_name='game_structs.GameRequestStatusResponse.game_id', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='message', full_name='game_structs.GameRequestStatusResponse.message', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=824,
+  serialized_end=905,
+)
+
+
+_GAMEREQUESTRESPONSE = _descriptor.Descriptor(
+  name='GameRequestResponse',
+  full_name='game_structs.GameRequestResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='success', full_name='game_structs.GameRequestResponse.success', index=0,
+      number=1, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='message', full_name='game_structs.GameRequestResponse.message', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='request_id', full_name='game_structs.GameRequestResponse.request_id', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=907,
+  serialized_end=982,
 )
 
 
@@ -449,8 +591,8 @@ _PLAYERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=731,
-  serialized_end=798,
+  serialized_start=984,
+  serialized_end=1051,
 )
 
 
@@ -489,6 +631,13 @@ _GAMESCORE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='game_structs.GameScore.comment', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -501,8 +650,53 @@ _GAMESCORE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=800,
-  serialized_end=890,
+  serialized_start=1053,
+  serialized_end=1160,
+)
+
+
+_GAMESTATUS = _descriptor.Descriptor(
+  name='GameStatus',
+  full_name='game_structs.GameStatus',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status', full_name='game_structs.GameStatus.status', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='game_structs.GameStatus.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='scores', full_name='game_structs.GameStatus.scores', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1162,
+  serialized_end=1248,
 )
 
 
@@ -514,14 +708,14 @@ _GAMESTATE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='boards', full_name='game_structs.GameState.boards', index=0,
-      number=1, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='status', full_name='game_structs.GameState.status', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='scores', full_name='game_structs.GameState.scores', index=1,
+      name='boards', full_name='game_structs.GameState.boards', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -560,8 +754,8 @@ _GAMESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=893,
-  serialized_end=1058,
+  serialized_start=1251,
+  serialized_end=1417,
 )
 
 
@@ -580,37 +774,23 @@ _GAMESTATUSINFO = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='status', full_name='game_structs.GameStatusInfo.status', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='status_comment', full_name='game_structs.GameStatusInfo.status_comment', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='players', full_name='game_structs.GameStatusInfo.players', index=3,
-      number=4, type=11, cpp_type=10, label=3,
+      name='players', full_name='game_structs.GameStatusInfo.players', index=1,
+      number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='state', full_name='game_structs.GameStatusInfo.state', index=4,
-      number=5, type=11, cpp_type=10, label=1,
+      name='state', full_name='game_structs.GameStatusInfo.state', index=2,
+      number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='legal_moves', full_name='game_structs.GameStatusInfo.legal_moves', index=5,
-      number=6, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='legal_moves', full_name='game_structs.GameStatusInfo.legal_moves', index=3,
+      number=4, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -626,34 +806,34 @@ _GAMESTATUSINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1061,
-  serialized_end=1258,
+  serialized_start=1420,
+  serialized_end=1552,
 )
 
 
-_GAMEACTIONRESPONSE = _descriptor.Descriptor(
-  name='GameActionResponse',
-  full_name='game_structs.GameActionResponse',
+_GAMESTATUSRESPONSE = _descriptor.Descriptor(
+  name='GameStatusResponse',
+  full_name='game_structs.GameStatusResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='success', full_name='game_structs.GameActionResponse.success', index=0,
+      name='success', full_name='game_structs.GameStatusResponse.success', index=0,
       number=1, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='message', full_name='game_structs.GameActionResponse.message', index=1,
+      name='message', full_name='game_structs.GameStatusResponse.message', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='status_info', full_name='game_structs.GameActionResponse.status_info', index=2,
+      name='status_info', full_name='game_structs.GameStatusResponse.status_info', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -671,36 +851,40 @@ _GAMEACTIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1260,
-  serialized_end=1365,
+  serialized_start=1554,
+  serialized_end=1659,
 )
 
-_GAMEMOVES.fields_by_name['moves'].message_type = _MOVEDESCRIPTION
+_GAMEMOVESRESPONSE.fields_by_name['moves'].message_type = _MOVEDESCRIPTION
 _COORDINATES.fields_by_name['values'].message_type = _COORDINATE
 _GAMEPIECEMOVE.fields_by_name['coordinates'].message_type = _COORDINATES
 _MOVE.fields_by_name['piece_moves'].message_type = _GAMEPIECEMOVE
 _GAMEPIECE.fields_by_name['location'].message_type = _COORDINATES
 _GAMEBOARD.fields_by_name['pieces'].message_type = _GAMEPIECE
+_GAMESTATUS.fields_by_name['scores'].message_type = _GAMESCORE
+_GAMESTATE.fields_by_name['status'].message_type = _GAMESTATUS
 _GAMESTATE.fields_by_name['boards'].message_type = _GAMEBOARD
-_GAMESTATE.fields_by_name['scores'].message_type = _GAMESCORE
 _GAMESTATUSINFO.fields_by_name['players'].message_type = _PLAYERINFO
 _GAMESTATUSINFO.fields_by_name['state'].message_type = _GAMESTATE
-_GAMESTATUSINFO.fields_by_name['legal_moves'].message_type = _GAMEMOVES
-_GAMEACTIONRESPONSE.fields_by_name['status_info'].message_type = _GAMESTATUSINFO
+_GAMESTATUSRESPONSE.fields_by_name['status_info'].message_type = _GAMESTATUSINFO
 DESCRIPTOR.message_types_by_name['MoveDescription'] = _MOVEDESCRIPTION
 DESCRIPTOR.message_types_by_name['GameDescription'] = _GAMEDESCRIPTION
-DESCRIPTOR.message_types_by_name['GameMoves'] = _GAMEMOVES
+DESCRIPTOR.message_types_by_name['GameMovesResponse'] = _GAMEMOVESRESPONSE
+DESCRIPTOR.message_types_by_name['LegalMovesResponse'] = _LEGALMOVESRESPONSE
 DESCRIPTOR.message_types_by_name['Coordinate'] = _COORDINATE
 DESCRIPTOR.message_types_by_name['Coordinates'] = _COORDINATES
 DESCRIPTOR.message_types_by_name['GamePieceMove'] = _GAMEPIECEMOVE
 DESCRIPTOR.message_types_by_name['Move'] = _MOVE
 DESCRIPTOR.message_types_by_name['GamePiece'] = _GAMEPIECE
 DESCRIPTOR.message_types_by_name['GameBoard'] = _GAMEBOARD
+DESCRIPTOR.message_types_by_name['GameRequestStatusResponse'] = _GAMEREQUESTSTATUSRESPONSE
+DESCRIPTOR.message_types_by_name['GameRequestResponse'] = _GAMEREQUESTRESPONSE
 DESCRIPTOR.message_types_by_name['PlayerInfo'] = _PLAYERINFO
 DESCRIPTOR.message_types_by_name['GameScore'] = _GAMESCORE
+DESCRIPTOR.message_types_by_name['GameStatus'] = _GAMESTATUS
 DESCRIPTOR.message_types_by_name['GameState'] = _GAMESTATE
 DESCRIPTOR.message_types_by_name['GameStatusInfo'] = _GAMESTATUSINFO
-DESCRIPTOR.message_types_by_name['GameActionResponse'] = _GAMEACTIONRESPONSE
+DESCRIPTOR.message_types_by_name['GameStatusResponse'] = _GAMESTATUSRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 MoveDescription = _reflection.GeneratedProtocolMessageType('MoveDescription', (_message.Message,), dict(
@@ -717,12 +901,19 @@ GameDescription = _reflection.GeneratedProtocolMessageType('GameDescription', (_
   ))
 _sym_db.RegisterMessage(GameDescription)
 
-GameMoves = _reflection.GeneratedProtocolMessageType('GameMoves', (_message.Message,), dict(
-  DESCRIPTOR = _GAMEMOVES,
+GameMovesResponse = _reflection.GeneratedProtocolMessageType('GameMovesResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GAMEMOVESRESPONSE,
   __module__ = 'chupacabra_client.protos.game_structs_pb2'
-  # @@protoc_insertion_point(class_scope:game_structs.GameMoves)
+  # @@protoc_insertion_point(class_scope:game_structs.GameMovesResponse)
   ))
-_sym_db.RegisterMessage(GameMoves)
+_sym_db.RegisterMessage(GameMovesResponse)
+
+LegalMovesResponse = _reflection.GeneratedProtocolMessageType('LegalMovesResponse', (_message.Message,), dict(
+  DESCRIPTOR = _LEGALMOVESRESPONSE,
+  __module__ = 'chupacabra_client.protos.game_structs_pb2'
+  # @@protoc_insertion_point(class_scope:game_structs.LegalMovesResponse)
+  ))
+_sym_db.RegisterMessage(LegalMovesResponse)
 
 Coordinate = _reflection.GeneratedProtocolMessageType('Coordinate', (_message.Message,), dict(
   DESCRIPTOR = _COORDINATE,
@@ -766,6 +957,20 @@ GameBoard = _reflection.GeneratedProtocolMessageType('GameBoard', (_message.Mess
   ))
 _sym_db.RegisterMessage(GameBoard)
 
+GameRequestStatusResponse = _reflection.GeneratedProtocolMessageType('GameRequestStatusResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GAMEREQUESTSTATUSRESPONSE,
+  __module__ = 'chupacabra_client.protos.game_structs_pb2'
+  # @@protoc_insertion_point(class_scope:game_structs.GameRequestStatusResponse)
+  ))
+_sym_db.RegisterMessage(GameRequestStatusResponse)
+
+GameRequestResponse = _reflection.GeneratedProtocolMessageType('GameRequestResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GAMEREQUESTRESPONSE,
+  __module__ = 'chupacabra_client.protos.game_structs_pb2'
+  # @@protoc_insertion_point(class_scope:game_structs.GameRequestResponse)
+  ))
+_sym_db.RegisterMessage(GameRequestResponse)
+
 PlayerInfo = _reflection.GeneratedProtocolMessageType('PlayerInfo', (_message.Message,), dict(
   DESCRIPTOR = _PLAYERINFO,
   __module__ = 'chupacabra_client.protos.game_structs_pb2'
@@ -779,6 +984,13 @@ GameScore = _reflection.GeneratedProtocolMessageType('GameScore', (_message.Mess
   # @@protoc_insertion_point(class_scope:game_structs.GameScore)
   ))
 _sym_db.RegisterMessage(GameScore)
+
+GameStatus = _reflection.GeneratedProtocolMessageType('GameStatus', (_message.Message,), dict(
+  DESCRIPTOR = _GAMESTATUS,
+  __module__ = 'chupacabra_client.protos.game_structs_pb2'
+  # @@protoc_insertion_point(class_scope:game_structs.GameStatus)
+  ))
+_sym_db.RegisterMessage(GameStatus)
 
 GameState = _reflection.GeneratedProtocolMessageType('GameState', (_message.Message,), dict(
   DESCRIPTOR = _GAMESTATE,
@@ -794,12 +1006,12 @@ GameStatusInfo = _reflection.GeneratedProtocolMessageType('GameStatusInfo', (_me
   ))
 _sym_db.RegisterMessage(GameStatusInfo)
 
-GameActionResponse = _reflection.GeneratedProtocolMessageType('GameActionResponse', (_message.Message,), dict(
-  DESCRIPTOR = _GAMEACTIONRESPONSE,
+GameStatusResponse = _reflection.GeneratedProtocolMessageType('GameStatusResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GAMESTATUSRESPONSE,
   __module__ = 'chupacabra_client.protos.game_structs_pb2'
-  # @@protoc_insertion_point(class_scope:game_structs.GameActionResponse)
+  # @@protoc_insertion_point(class_scope:game_structs.GameStatusResponse)
   ))
-_sym_db.RegisterMessage(GameActionResponse)
+_sym_db.RegisterMessage(GameStatusResponse)
 
 
 # @@protoc_insertion_point(module_scope)
