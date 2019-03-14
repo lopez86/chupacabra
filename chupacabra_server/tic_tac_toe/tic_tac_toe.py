@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from chupacabra_client.protos.game_structs_pb2 import PlayerInfo, Move
 import numpy as np
@@ -26,11 +26,11 @@ class TicTacToeInternalState:
     def __init__(
         self,
         game_id: str,
-        players: PlayerInfo,
+        players: List[PlayerInfo],
         board: np.ndarray = None,
         mode: str = None,
         turn: int = None,
-        winner: str = None
+        winner: int = None
     ):
         if not game_id:
             raise AssertionError('Please supply a game ID.')
@@ -129,19 +129,26 @@ TURN_SCORES = {
 }
 
 
+NOT_IN_PLAY_MODE_MESSAGE = 'Game is not in play mode.'
+CANNOT_MOVE_MESSAGE = 'You may not make a move at this time.'
+
+
 def _validate_game_state(
     internal_state: TicTacToeInternalState,
     move: Move
 ) -> Tuple[bool, str]:
     # Game is not in play mode
     if internal_state.mode != PLAY_MODE:
-        return False, 'Game is not in play mode'
+        return False, NOT_IN_PLAY_MODE_MESSAGE
     current_player = internal_state.players[internal_state.turn].id
     # Wrong player's turn
     if move.player_id != current_player:
-        return False, 'You may not make a move at this time.'
+        return False, CANNOT_MOVE_MESSAGE
 
     return True, ''
+
+
+ILLEGAL_MOVE_MESSAGE = 'Illegal move.'
 
 
 def _validate_and_extract_coordinates(
@@ -149,24 +156,27 @@ def _validate_and_extract_coordinates(
 ) -> Tuple[Dict[str, int], str]:
     # Regular move errors
     if len(move.piece_moves) != 1:
-        return {}, 'Illegal move.'
+        return {}, ILLEGAL_MOVE_MESSAGE
 
     piece_move = move.piece_moves[0]
     if len(piece_move.locations) != 1:
-        return {}, 'Illegal move.'
+        return {}, ILLEGAL_MOVE_MESSAGE
 
     location = piece_move.locations[0]
     coordinates = {
         coordinate.name: coordinate.value
-        for coordinate in location.coordinates
+        for coordinate in location.values
     }
 
-    if len(set(coordinates.keys()) & COORDINATE_NAMES) != len(COORDINATE_NAMES):
-        return {}, 'Illegal move.'
+    if (
+        (len(set(coordinates.keys()) | COORDINATE_NAMES) != len(COORDINATE_NAMES)) or
+        (len(set(coordinates.keys()) & COORDINATE_NAMES) != len(COORDINATE_NAMES))
+    ):
+        return {}, ILLEGAL_MOVE_MESSAGE
 
     for value in coordinates.values():
         if value < 0 or value > 3:
-            return {}, 'Illegal move.'
+            return {}, ILLEGAL_MOVE_MESSAGE
 
     return coordinates, ''
 

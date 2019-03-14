@@ -1,5 +1,5 @@
 from contextlib import AbstractContextManager, contextmanager
-from typing import Any, Callable
+from typing import Any, Callable, Generator
 
 from redis import StrictRedis
 
@@ -59,7 +59,7 @@ class RedisCacheHandler:
 
         return deserialized_data
 
-    def set(self, key: Any, data: Any, lifetime=3600) -> bool:
+    def set(self, key: Any, data: Any, lifetime: int = 3600) -> bool:
         """Set a key, value pair for a given lifetime.
 
         If the lifetime is non-positive, then it is not given an expiration time.
@@ -96,7 +96,11 @@ class RedisCacheHandler:
         return True
 
     @contextmanager
-    def lock(self, key: str, blocking_timeout: int) -> AbstractContextManager:
+    def lock(
+        self,
+        key: str,
+        blocking_timeout: int
+    ) -> Generator[AbstractContextManager, None, None]:
         """Get a lock on a resource."""
         with self._redis.lock(key, blocking_timeout=blocking_timeout) as lock:
             yield lock

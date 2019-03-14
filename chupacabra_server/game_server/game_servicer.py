@@ -1,4 +1,5 @@
-from chupacabra_server.protos.game_server_pb2_grpc import GameServerServicer
+from protos.game_server_pb2_grpc import GameServerServicer
+
 
 class BasicGameServicer(GameServerServicer):
 

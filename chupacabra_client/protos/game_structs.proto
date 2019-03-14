@@ -56,7 +56,7 @@ message Coordinates {
 // Represents a move a single game piece
 message GamePieceMove {
     string piece_id = 1;
-    repeated Coordinates coordinates = 2;
+    repeated Coordinates locations = 2;
     string comment = 3;
 }
 
@@ -64,8 +64,9 @@ message GamePieceMove {
 // describe the necessary formulation.
 message Move {
     string move_name = 1;
-    repeated GamePieceMove piece_moves = 2;
-    string comment = 3;
+    string player_id = 2;
+    repeated GamePieceMove piece_moves = 3;
+    string comment = 4;
 }
 
 
@@ -122,10 +123,11 @@ message PlayerInfo {
 // Scores
 message GameScore {
     string player_id = 1;
-    string score_type = 2;
-    int32 int_score = 3;
-    float float_score = 4;
-    string comment = 5;
+    string player_name = 2;
+    string score_type = 3;
+    int32 int_score = 4;
+    float float_score = 5;
+    string comment = 6;
 }
 
 message GameStatus {
