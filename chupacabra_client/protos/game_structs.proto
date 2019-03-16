@@ -91,9 +91,10 @@ message GameBoard {
 
 // Response to a status request
 message GameRequestStatusResponse {
-    bool game_found = 1;
-    string game_id = 2;
-    string message = 3;
+    bool success = 1;
+    string message = 2;
+    bool game_found = 3;
+    string game_id = 4;
 }
 
 
@@ -114,8 +115,8 @@ message GameRequestResponse {
 
 // Basic info on a player
 message PlayerInfo {
-    string id = 1;
-    string name = 2;
+    string username = 1;
+    string nickname = 2;
     string level = 3;
     string team = 4;
 }

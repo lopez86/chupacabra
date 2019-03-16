@@ -2,6 +2,7 @@ import copy
 import json
 from typing import Dict, List, Optional, Tuple
 
+import arrow
 from chupacabra_client.protos.game_structs_pb2 import PlayerInfo, Move
 import numpy as np
 
@@ -16,28 +17,40 @@ GAME_MODES = frozenset({
 TURN_OPTIONS = frozenset({0, 1})
 
 ID_KEY = 'id'
+PLAYER_IDS_KEY = 'player_ids'
 PLAYER_KEY = 'players'
 BOARD_KEY = 'board'
 MODE_KEY = 'mode'
 TURN_KEY = 'turn'
 WINNER_KEY = 'winner'
+TURN_EX_TIME_KEY = 'turn_ex'
+GAME_EX_TIME_KEY = 'game_ex'
+
+GAME_LIFETIME = 11 * 60  # 11 minutes
+TURN_EXPIRATION_TIME = 60  # 1 minute, expiration for a single turn
 
 
 class TicTacToeInternalState:
     def __init__(
         self,
         game_id: str,
+        player_ids: List[str],
         players: List[PlayerInfo],
+        turn_expiration_time: int,
+        game_expiration_time: int,
         board: np.ndarray = None,
         mode: str = None,
         turn: int = None,
-        winner: int = None
+        winner: int = None,
     ):
         """Represents an internal state of a tic tac toe game
 
         Args:
             game_id: str, the unique ID for this game
+            player_ids: list of str, the players
             players: list of PlayerInfo, the players
+            turn_expiration_time: int, the time at which the current turn expires
+            game_expiration_time: int, the time at which the game expires
             board: Maybe(numpy.ndarray), the 3x3 game board
             mode: Maybe(str), the current game mode
             turn: Maybe(int), the index of the player whose turn it is (if applicable)
@@ -46,12 +59,16 @@ class TicTacToeInternalState:
         if not game_id:
             raise AssertionError('Please supply a game ID.')
 
-        if len(players) != 2:
+        if len(players) != 2 or len(player_ids) != 2:
             raise AssertionError(
                 'TicTacToe must have 2 players. Have {}'.format(len(players)))
 
         self.id = game_id
+        self.player_ids = player_ids
         self.players = players
+        self.game_expiration_time = game_expiration_time
+        self.turn_expiration_time = turn_expiration_time
+
         if board is None:
             self.board = np.array([3, 3], np.int8)
         else:
@@ -86,8 +103,8 @@ def serialize_state(state: TicTacToeInternalState) -> str:
     """Serialize an internal state into a string."""
     players_list = [
         {
-            'id': player.id,
-            'name': player.name,
+            'username': player.id,
+            'nickname': player.name,
             'level': player.level,
             'team': player.team
         }
@@ -95,11 +112,14 @@ def serialize_state(state: TicTacToeInternalState) -> str:
     ]
     game_dict = {
         ID_KEY: state.id,
+        PLAYER_IDS_KEY: state.player_ids,
         PLAYER_KEY: players_list,
         BOARD_KEY: state.board.tolist(),
         MODE_KEY: state.mode,
         TURN_KEY: state.turn,
-        WINNER_KEY: state.winner
+        WINNER_KEY: state.winner,
+        TURN_EX_TIME_KEY: state.turn_expiration_time,
+        GAME_EX_TIME_KEY: state.game_expiration_time
     }
     serialized_game = json.dumps(game_dict)
     return serialized_game
@@ -109,15 +129,18 @@ def deserialize_state(serialized_game: str) -> 'TicTacToeInternalState':
     """Deserialized a stringified internal state."""
     game_data = json.loads(serialized_game, encoding='utf-8')
     game_id = game_data[ID_KEY]
+    player_ids = game_data[PLAYER_IDS_KEY]
     players_list = game_data[PLAYER_KEY]
     board = game_data[BOARD_KEY]
     mode = game_data[MODE_KEY]
     turn = game_data[TURN_KEY]
     winner = game_data[WINNER_KEY]
+    game_ex_time = game_data[GAME_EX_TIME_KEY]
+    turn_ex_time = game_data[TURN_EX_TIME_KEY]
     players = [
         PlayerInfo(
-            id=player['id'],
-            name=player['name'],
+            id=player['username'],
+            name=player['nickname'],
             level=player['level'],
             team=player['team']
         )
@@ -125,7 +148,10 @@ def deserialize_state(serialized_game: str) -> 'TicTacToeInternalState':
     ]
     return TicTacToeInternalState(
         game_id,
+        player_ids,
         players,
+        turn_ex_time,
+        game_ex_time,
         board=board,
         mode=mode,
         turn=turn,
@@ -162,7 +188,7 @@ def _validate_game_state(
     # Game is not in play mode
     if internal_state.mode != PLAY_MODE:
         return False, NOT_IN_PLAY_MODE_MESSAGE
-    current_player = internal_state.players[internal_state.turn].id
+    current_player = internal_state.player_ids[internal_state.turn]
     # Wrong player's turn
     if move.player_id != current_player:
         return False, CANNOT_MOVE_MESSAGE
@@ -264,29 +290,43 @@ def make_move(
     if not is_validated:
         return message, None
 
-    score = TURN_SCORES[internal_state.turn]
-
-    coordinates, message = _validate_and_extract_coordinates(move)
-    if not coordinates:
-        return message, None
-
-    move_x = coordinates[X_COORD]
-    move_y = coordinates[Y_COORD]
-    position_value = internal_state.board[move_x, move_y]
-    if position_value != 0:
-        return 'Position already filled.', None
-
-    # Make the move
-    # We first want to copy the state so as not to modify the original state
-    new_internal_state = copy.deepcopy(internal_state)
-    new_internal_state.board[move_x, move_y] = score
-    new_internal_state.turn = (new_internal_state.turn + 1) % 2
-
-    is_game_over, game_winner = _check_for_game_over(new_internal_state.board)
-    if is_game_over:
+    # Now test if the turn or game has expired
+    current_time = arrow.utcnow().float_timestamp
+    if current_time > internal_state.turn_expiration_time:
+        # Turn has expired
+        new_internal_state = copy.deepcopy(internal_state)
         new_internal_state.mode = FINISHED_MODE
-        new_internal_state.winner = game_winner
+        new_internal_state.winner = (new_internal_state.turn + 1) % 2
+    elif current_time > internal_state.game_expiration_time:
+        # Game has expired
+        new_internal_state = copy.deepcopy(internal_state)
+        new_internal_state.mode = FINISHED_MODE
+        new_internal_state.winner = -1
+    else:
+        score = TURN_SCORES[internal_state.turn]
 
-    message = 'Success.'
+        coordinates, message = _validate_and_extract_coordinates(move)
+        if not coordinates:
+            return message, None
+
+        move_x = coordinates[X_COORD]
+        move_y = coordinates[Y_COORD]
+        position_value = internal_state.board[move_x, move_y]
+        if position_value != 0:
+            return 'Position already filled.', None
+
+        # Make the move
+        # We first want to copy the state so as not to modify the original state
+        new_internal_state = copy.deepcopy(internal_state)
+        new_internal_state.board[move_x, move_y] = score
+        new_internal_state.turn = (new_internal_state.turn + 1) % 2
+        new_internal_state.turn_expiration_time = int(current_time + TURN_EXPIRATION_TIME)
+
+        is_game_over, game_winner = _check_for_game_over(new_internal_state.board)
+        if is_game_over:
+            new_internal_state.mode = FINISHED_MODE
+            new_internal_state.winner = game_winner
+
+        message = 'Success.'
 
     return message, new_internal_state

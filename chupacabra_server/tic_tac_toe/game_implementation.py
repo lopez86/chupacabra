@@ -1,6 +1,7 @@
 import json
 from typing import List, Optional, Tuple
 
+import arrow
 from chupacabra_client.protos import game_structs_pb2
 import numpy as np
 
@@ -14,8 +15,12 @@ from tic_tac_toe import description
 
 TTT_MOVE_BLOCK_TIME = 1  # in seconds
 TTT_REQUEST_BLOCK_TIME = 1  # in seconds
-GAME_EXPIRATION_TIME = 30 * 60  # 30 minutes
-MOVE_EXPIRATION_TIME = 2 * 60  # 2 minutes
+GAME_PERSISTENCE_TIME = 15 * 60  # 15 minutes - redis time
+REQUEST_LIFETIME = 60  # 1 minutes
+QUEUE_LIFETIME = 90  # 1.5 minutes
+
+MAX_REQUEST_VALUE = 2000000000
+MAX_REQUEST_ID_ATTEMPTS = 10
 
 
 def _make_validation_key(game_id: str) -> str:
@@ -159,7 +164,7 @@ def _get_game_status(
     if mode == tic_tac_toe.PLAY_MODE:
         scores = [
             game_structs_pb2.GameScore(
-                player_name=player.name,
+                player_name=player.username,
                 comment='Game not yet finished.'
             )
             for player in players
@@ -169,22 +174,22 @@ def _get_game_status(
     elif mode == tic_tac_toe.FINISHED_MODE:
         if winner == -1:
             statuses = {
-                player.name: 'tie'
+                player.username: 'tie'
                 for player in players
             }
         else:
             statuses = {
-                player.name: 'win' if winner == idx else 'lose'
+                player.username: 'win' if winner == idx else 'lose'
                 for idx, player in enumerate(players)
             }
         scores = [
             game_structs_pb2.GameScore(
-                player_name=name,
+                player_name=username,
                 score_type='int',
                 int_score=SCORES[status],
                 comment=SCORE_COMMENTS[status]
             )
-            for name, status in statuses.items()
+            for username, status in statuses.items()
         ]
         status = 'finished'
         comment = 'Game Over'
@@ -214,15 +219,6 @@ def _convert_to_status_response(
     else:
         legal_moves = []
 
-    players = [
-        game_structs_pb2.PlayerInfo(
-            name=player.name,
-            level=player.level,
-            team=player.team,
-        )
-        for player in internal_state.players
-    ]
-
     status = _get_game_status(
         internal_state.mode, internal_state.winner, internal_state.players)
 
@@ -234,7 +230,7 @@ def _convert_to_status_response(
 
     status_info = game_structs_pb2.GameStatusInfo(
         id=internal_state.id,
-        players=players,
+        players=internal_state.players,
         state=state,
         legal_moves=legal_moves
     )
@@ -247,28 +243,245 @@ def _convert_to_status_response(
     return response
 
 
+def _generate_request_id(
+    handler: RedisCacheHandler,
+    player_id: str,
+    random_state: np.random.RandomState
+) -> Optional[str]:
+    """Generate a request id"""
+    request_id = None
+    for _ in range(MAX_REQUEST_ID_ATTEMPTS):
+        proposed_request_id = str(random_state.randint(1, MAX_REQUEST_VALUE))
+        request_key = _make_request_key(proposed_request_id, player_id)
+        existing_data = handler.get(request_key)
+        if existing_data is None:
+            request_id = proposed_request_id
+
+    return request_id
+
+
+def _generate_game_id(
+    handler: RedisCacheHandler,
+    random_state: np.random.RandomState
+) -> Optional[str]:
+    """Generate a game id"""
+    game_id = None
+    for _ in range(MAX_REQUEST_ID_ATTEMPTS):
+        proposed_game_id = str(random_state.randint(1, MAX_REQUEST_VALUE))
+        game_key = _make_state_key(proposed_game_id)
+        existing_data = handler.get(game_key)
+        if existing_data is None:
+            game_id = proposed_game_id
+
+    return game_id
+
+
 def request_game(
     request: game_server_pb2.GameRequest
-) -> game_server_pb2.GameResponse:
+) -> game_structs_pb2.GameRequestResponse:
     """Request a game."""
+    handler = get_redis_handler()
+
+    # Set a random number seed based on the fractional second part
+    # of the timestamp. This makes it more reliable on higher loads compared
+    # to the integer utc timestamp.
+    time_now = arrow.utcnow().float_timestamp
+    seed = int(time_now * 1e9) % 1000000000
+    random_state = np.random.RandomState(seed)
+
     # Lock the requests
-    # TODO: implement
-    # Idea:
-    # 1) Check if the queue is populated with active requests
-    # 2) check if the user has a request in the queue
-    # 2a) if yes, fail
-    # 2b) if no, continue
-    # 3) if queue has requests: make a game and set request --> game mappings
-    # 4) if not, add user to the queue along with an expiration time
-    raise NotImplementedError()
+    with handler.lock(REQUEST_QUEUE_LOCK_KEY, TTT_REQUEST_BLOCK_TIME):
+        # Generate a request id
+        request_id = _generate_request_id(handler, request.player_id, random_state)
+        if request_id is None:
+            return game_structs_pb2.GameRequestResponse(
+                success=False,
+                message='Unable to request a game.'
+            )
+        request_key = _make_request_key(request_id, request.player_id)
+
+        # Get the request queue
+        queue_data = handler.get(REQUEST_QUEUE_KEY)
+        if queue_data is not None and len(queue_data) > 0:
+            request_queue = json.loads(queue_data)
+            # Check expiration times
+            valid_requests = [
+                game_request
+                for game_request in request_queue
+                if game_request['expiration'] < time_now
+            ]
+            # Check if the current user is in the queue (slow -- need better method to do this)
+            for game_request in valid_requests:
+                if game_request['player_id'] == request.player_id:
+                    return game_structs_pb2.GameRequestResponse(
+                        success=False,
+                        message='You already have a request in the queue.',
+                        request_id=game_request['request_id']
+                    )
+
+            # Generate game id
+            game_id = _generate_game_id(handler, random_state)
+
+            if game_id is None:
+                return game_structs_pb2.GameRequestResponse(
+                    success=False,
+                    message='Unable to request a game.'
+                )
+
+            # Grab the first element
+            matched_player_request = valid_requests[0]
+            remaining_requests = valid_requests[1:]
+            matched_player_info = game_structs_pb2.PlayerInfo(
+                username=matched_player_request['username'],
+                nickname=matched_player_request['nickname'],
+                team=matched_player_request['team'],
+                level=matched_player_request['level']
+            )
+            matched_player_id = matched_player_request['player_id']
+            matched_request_id = matched_player_request['id']
+
+            # Randomized starting player
+            if random_state.randint(2) == 0:
+                player_ids = [request.player_id, matched_player_id]
+                player_info = [request.player_info, matched_player_info]
+            else:
+                player_ids = [matched_player_id, request.player_id]
+                player_info = [matched_player_info, request.player_info]
+
+            # initialize the state
+            game_state = tic_tac_toe.TicTacToeInternalState(
+                game_id,
+                player_ids,
+                player_info,
+                tic_tac_toe.TURN_EXPIRATION_TIME,
+                tic_tac_toe.GAME_LIFETIME
+            )
+            serialized_state = tic_tac_toe.serialize_state(game_state)
+
+            # Now we want to set:
+            # 1) the queue
+            # 2) the game
+            # 3) the request
+            # The idea for this order is to prevent a request from
+            # generating multiple games (easier to have it just fail)
+            # and also to prevent a request from getting assigned
+            # a bad game.
+            # Unfortunately, redis does not allow for a multiset
+            # with different expirations
+
+            # Save the queue:
+            serialized_queue = json.dumps(remaining_requests)
+            handler.set(
+                REQUEST_QUEUE_KEY,
+                serialized_queue,
+                lifetime=QUEUE_LIFETIME
+            )
+
+            # Save the game:
+            game_key = _make_state_key(game_id)
+            handler.set(game_key, serialized_state, lifetime=GAME_PERSISTENCE_TIME)
+
+            # Save the request
+            serialized_request = json.dumps({
+                'player': request.player_id,
+                'game': game_id
+            })
+            handler.set(request_key, serialized_request, lifetime=REQUEST_LIFETIME)
+            matched_request_key = _make_request_key(
+                matched_request_id, matched_player_id)
+            serialized_matched_request = json.dumps({
+                'player': matched_player_id,
+                'game': game_id
+            })
+            handler.set(
+                matched_request_key,
+                serialized_matched_request,
+                lifetime=REQUEST_LIFETIME
+            )
+
+            response = game_structs_pb2.GameRequestResponse(
+                success=True,
+                message='Found game',
+                request_id=request_id,
+                game_id=game_id
+            )
+
+        else:  # The queue is empty
+            queue_request = {
+                'id': request_id,
+                'player_id': request.player_id,
+                'username': request.player_info.username,
+                'nickname': request.player_info.nickname,
+                'level': request.player_info.level,
+                'team': request.player_info.team
+            }
+            serialized_request = json.dumps(queue_request)
+            serialized_queue = json.dumps([queue_request])
+            # Save the request first then the queue
+            handler.set(
+                request_key,
+                serialized_request,
+                lifetime=REQUEST_LIFETIME
+            )
+
+            handler.set(
+                REQUEST_QUEUE_KEY,
+                serialized_queue,
+                lifetime=QUEUE_LIFETIME
+            )
+
+            response = game_structs_pb2.GameRequestResponse(
+                success=True,
+                message='Added request to queue',
+                request_id=request_id
+            )
+
+    return response
 
 
 def check_game_request(
     request: game_server_pb2.GameRequestStatusRequest
-) -> game_server_pb2.GameResponse:
+) -> game_structs_pb2.GameRequestStatusResponse:
     """Check if the request has been completed."""
     # Check if the request --> game mapping has been found
-    raise NotImplementedError()
+    redis_handler = get_redis_handler()
+    key = _make_request_key(request.request_id, request.player_id)
+    data_string = redis_handler.get(key)
+    if data_string is None:
+        message = 'Game request not found.'
+        success = False
+        game_id = None
+    else:
+        data = json.loads(data_string)
+        # Verify the ID
+        if data['player'] != request.player_id:
+            message = 'Game request not found.'
+            success = False
+            game_id = None
+
+        else:
+            game_id = data.get('game')
+            success = True
+            if game_id is None:
+                message = 'Game found.'
+            else:
+                message = 'Game not initialized yet.'
+
+    if game_id is None:
+        response = game_structs_pb2.GameRequestStatusResponse(
+            success=success,
+            message=message,
+            game_found=False
+        )
+    else:
+        response = game_structs_pb2.GameRequestStatusResponse(
+            success=success,
+            message=message,
+            game_found=True,
+            game_id=game_id
+        )
+
+    return response
 
 
 def describe_game() -> game_structs_pb2.GameDescription:
@@ -438,8 +651,8 @@ def forfeit_game(
         internal_state = tic_tac_toe.deserialize_state(state)
         internal_state.mode = tic_tac_toe.FINISHED_MODE
         winner_idx = None
-        for idx, player in enumerate(internal_state.players):
-            if player.id != request.player_id:
+        for idx, player_id in enumerate(internal_state.player_ids):
+            if player_id != request.player_id:
                 winner_idx = idx
                 break
 

@@ -1,5 +1,5 @@
 from contextlib import AbstractContextManager, contextmanager
-from typing import Any, Callable, Generator
+from typing import Any, Callable, Generator, Tuple
 
 from redis import StrictRedis
 
@@ -72,21 +72,7 @@ class RedisCacheHandler:
         Returns:
             bool, should be True for a successful operation
         """
-        if self._key_serializer is not None:
-            serialized_key = self._key_serializer(key)
-        else:
-            serialized_key = key
-
-        if self._data_serializer is not None:
-            serialized_data = self._data_serializer(data)
-        else:
-            serialized_data = data
-
-        if not isinstance(serialized_key, str):
-            raise AssertionError('Illegal key of type {}'.format(serialized_key))
-
-        if not isinstance(serialized_key, str):
-            raise AssertionError('Illegal data of type {}'.format(serialized_data))
+        serialized_key, serialized_data = self._get_validated_inputs(key, data)
 
         if lifetime is None:
             self._redis.set(serialized_key, serialized_data)
@@ -117,3 +103,22 @@ class RedisCacheHandler:
 
         self._redis.delete([serialized_key])
         return True
+
+    def _get_validated_inputs(self, key: Any, data: Any) -> Tuple[str, str]:
+        if self._key_serializer is not None:
+            serialized_key = self._key_serializer(key)
+        else:
+            serialized_key = key
+
+        if self._data_serializer is not None:
+            serialized_data = self._data_serializer(data)
+        else:
+            serialized_data = data
+
+        if not isinstance(serialized_key, str):
+            raise AssertionError('Illegal key of type {}'.format(serialized_key))
+
+        if not isinstance(serialized_key, str):
+            raise AssertionError('Illegal data of type {}'.format(serialized_data))
+
+        return serialized_key, serialized_data
