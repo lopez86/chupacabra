@@ -557,7 +557,10 @@ def make_move(
         # If the move was successful, write back into redis and release lock
         if new_state is not None:
             serialized_state = tic_tac_toe.serialize_state(new_state)
-            handler.set(state_key, serialized_state)
+            timestamp = arrow.utcnow().timestamp
+            state_lifetime = (
+                internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
+            handler.set(state_key, serialized_state, lifetime=state_lifetime)
         else:
             new_state = internal_state
 
