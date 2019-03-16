@@ -18,6 +18,7 @@ TTT_REQUEST_BLOCK_TIME = 1  # in seconds
 GAME_PERSISTENCE_TIME = 15 * 60  # 15 minutes - redis time
 REQUEST_LIFETIME = 60  # 1 minutes
 QUEUE_LIFETIME = 90  # 1.5 minutes
+GAME_PADDED_LIFETIME = GAME_PERSISTENCE_TIME + tic_tac_toe.GAME_LIFETIME
 
 MAX_REQUEST_VALUE = 2000000000
 MAX_REQUEST_ID_ATTEMPTS = 10
@@ -71,22 +72,36 @@ def _validate_game(
 
 def _get_game_state(
     game_id: str, player_id: str, redis_handler: RedisCacheHandler
-) -> Tuple[str, Optional[tic_tac_toe.TicTacToeInternalState]]:
+) -> Tuple[str, Optional[tic_tac_toe.TicTacToeInternalState], bool]:
     """Get the game state without locking anything."""
     validated = _validate_game(game_id, player_id, redis_handler)
     if validated is False:
         message = 'Cannot find game of the given id for the given user'
-        return message, None
+        return message, None, False
 
     state_key = _make_state_key(game_id)
     state = redis_handler.get(state_key)
     if state is None:
         message = 'Game data not found.'
-        return message, None
+        return message, None, False
 
     internal_state = tic_tac_toe.deserialize_state(state)
+    time_now = arrow.utcnow().float_timestamp
+    if (
+        time_now > internal_state.turn_expiration_time and
+        internal_state.turn_expiration_time <= internal_state.game_expiration_time
+    ):
+        internal_state.mode = tic_tac_toe.FINISHED_MODE
+        internal_state.winner = (internal_state.turn + 1) % 2
+        save_new_state = True
+    elif time_now > internal_state.game_expiration_time:
+        internal_state.mode = tic_tac_toe.FINISHED_MODE
+        internal_state.winner = -1
+        save_new_state = True
+    else:
+        save_new_state = False
     message = 'Success'
-    return message, internal_state
+    return message, internal_state, save_new_state
 
 
 def _make_game_piece(
@@ -556,11 +571,20 @@ def get_game_status(
 ) -> game_structs_pb2.GameStatusResponse:
     """Get the current status of the game."""
     handler = get_redis_handler()
-    message, internal_state = _get_game_state(
-        request.game_id,
-        request.player_id,
-        handler
-    )
+    lock_key = _make_state_lock_key(request.game_id)
+    with handler.lock(lock_key, TTT_MOVE_BLOCK_TIME):
+        message, internal_state, save_new_state = _get_game_state(
+            request.game_id,
+            request.player_id,
+            handler
+        )
+        if save_new_state:
+            serialized_state = tic_tac_toe.serialize_state(internal_state)
+            state_key = _make_state_key(request.game_id)
+            timestamp = arrow.utcnow().timestamp
+            state_lifetime = (
+                internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
+            handler.set(state_key, serialized_state, lifetime=state_lifetime)
 
     if internal_state is None:
         return game_structs_pb2.GameStatusResponse(
@@ -582,11 +606,20 @@ def get_legal_moves(
 ) -> game_structs_pb2.LegalMovesResponse:
     """Get all the possible moves the player can make at the current time."""
     handler = get_redis_handler()
-    message, internal_state = _get_game_state(
-        request.game_id,
-        request.player_id,
-        handler
-    )
+    lock_key = _make_state_lock_key(request.game_id)
+    with handler.lock(lock_key, TTT_MOVE_BLOCK_TIME):
+        message, internal_state, save_new_state = _get_game_state(
+            request.game_id,
+            request.player_id,
+            handler
+        )
+        if save_new_state:
+            serialized_state = tic_tac_toe.serialize_state(internal_state)
+            state_key = _make_state_key(request.game_id)
+            timestamp = arrow.utcnow().timestamp
+            state_lifetime = (
+                internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
+            handler.set(state_key, serialized_state, lifetime=state_lifetime)
 
     if internal_state is None:
         return game_structs_pb2.LegalMovesResponse(
