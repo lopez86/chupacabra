@@ -1,3 +1,4 @@
+import copy
 import json
 from typing import Dict, List, Optional, Tuple
 
@@ -32,6 +33,16 @@ class TicTacToeInternalState:
         turn: int = None,
         winner: int = None
     ):
+        """Represents an internal state of a tic tac toe game
+
+        Args:
+            game_id: str, the unique ID for this game
+            players: list of PlayerInfo, the players
+            board: Maybe(numpy.ndarray), the 3x3 game board
+            mode: Maybe(str), the current game mode
+            turn: Maybe(int), the index of the player whose turn it is (if applicable)
+            winner: Maybe(int), the index of the winning player if applicable
+        """
         if not game_id:
             raise AssertionError('Please supply a game ID.')
 
@@ -72,6 +83,7 @@ class TicTacToeInternalState:
 
 
 def serialize_state(state: TicTacToeInternalState) -> str:
+    """Serialize an internal state into a string."""
     players_list = [
         {
             'id': player.id,
@@ -94,6 +106,7 @@ def serialize_state(state: TicTacToeInternalState) -> str:
 
 
 def deserialize_state(serialized_game: str) -> 'TicTacToeInternalState':
+    """Deserialized a stringified internal state."""
     game_data = json.loads(serialized_game, encoding='utf-8')
     game_id = game_data[ID_KEY]
     players_list = game_data[PLAYER_KEY]
@@ -137,6 +150,15 @@ def _validate_game_state(
     internal_state: TicTacToeInternalState,
     move: Move
 ) -> Tuple[bool, str]:
+    """Validate if the state is consistent with attempting the move.
+
+    Args:
+        internal_state: the internal state
+        move: the move being attempted
+
+    Returns:
+        tuple of bool (True=pass, False=fail), and string (message)
+    """
     # Game is not in play mode
     if internal_state.mode != PLAY_MODE:
         return False, NOT_IN_PLAY_MODE_MESSAGE
@@ -154,6 +176,16 @@ ILLEGAL_MOVE_MESSAGE = 'Illegal move.'
 def _validate_and_extract_coordinates(
     move: Move
 ) -> Tuple[Dict[str, int], str]:
+    """Validate that the move is legal and return the coordinates to fill.
+
+    Args:
+        move: the move to be validated
+
+    Returns:
+        tuple of:
+            dict, keys are coordinate names 'x' and 'y', values are the positions
+            str, return message if validation fails
+    """
     # Regular move errors
     if len(move.piece_moves) != 1:
         return {}, ILLEGAL_MOVE_MESSAGE
@@ -182,6 +214,14 @@ def _validate_and_extract_coordinates(
 
 
 def _check_for_game_over(board: np.ndarray) -> Tuple[bool, int]:
+    """Check if the game is over given the current state of the board
+
+    Args:
+        board: numpy.ndarray, the game board
+
+    Returns:
+        tuple of bool (True=game over), and int (index of winner or -1 for no winner)
+    """
     sums1 = np.sum(board, axis=0)
     sums2 = np.sum(board, axis=1)
     trace1 = np.trace(board)
@@ -208,7 +248,17 @@ def make_move(
     internal_state: TicTacToeInternalState,
     move: Move
 ) -> Tuple[str, Optional[TicTacToeInternalState]]:
-    """Make a move"""
+    """Attempt to make a move.
+
+    Args:
+        internal_state: the current internal state
+        move: the move to attempt
+
+    Returns:
+        Tuple of:
+            str, a return message
+            maybe(internal state), the new internal state if the move was a success
+    """
     # First validate the move
     is_validated, message = _validate_game_state(internal_state, move)
     if not is_validated:
@@ -225,14 +275,18 @@ def make_move(
     position_value = internal_state.board[move_x, move_y]
     if position_value != 0:
         return 'Position already filled.', None
-    internal_state.board[move_x, move_y] = score
-    internal_state.turn = (internal_state.turn + 1) % 2
 
-    is_game_over, game_winner = _check_for_game_over(internal_state.board)
+    # Make the move
+    # We first want to copy the state so as not to modify the original state
+    new_internal_state = copy.deepcopy(internal_state)
+    new_internal_state.board[move_x, move_y] = score
+    new_internal_state.turn = (new_internal_state.turn + 1) % 2
+
+    is_game_over, game_winner = _check_for_game_over(new_internal_state.board)
     if is_game_over:
-        internal_state.mode = FINISHED_MODE
-        internal_state.winner = game_winner
+        new_internal_state.mode = FINISHED_MODE
+        new_internal_state.winner = game_winner
 
     message = 'Success.'
 
-    return message, internal_state
+    return message, new_internal_state
