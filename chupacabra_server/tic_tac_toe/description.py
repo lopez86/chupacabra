@@ -1,6 +1,6 @@
 from chupacabra_client.protos.game_structs_pb2 import MoveDescription
 
-from tic_tac_toe.tic_tac_toe import PLAY_MODE
+from tic_tac_toe.tic_tac_toe_game import PLAY_MODE
 
 
 # Game name

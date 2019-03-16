@@ -8,7 +8,7 @@ import numpy as np
 from dbs.redis_cache import RedisCacheHandler
 from game_server.game_servicer import GameImplementation
 from protos import game_server_pb2
-from tic_tac_toe import tic_tac_toe
+from tic_tac_toe import tic_tac_toe_game as ttt
 from tic_tac_toe.config import get_redis_handler
 from tic_tac_toe import description
 
@@ -18,7 +18,7 @@ TTT_REQUEST_BLOCK_TIME = 1  # in seconds
 GAME_PERSISTENCE_TIME = 15 * 60  # 15 minutes - redis time
 REQUEST_LIFETIME = 60  # 1 minutes
 QUEUE_LIFETIME = 90  # 1.5 minutes
-GAME_PADDED_LIFETIME = GAME_PERSISTENCE_TIME + tic_tac_toe.GAME_LIFETIME
+GAME_PADDED_LIFETIME = GAME_PERSISTENCE_TIME + ttt.GAME_LIFETIME
 
 MAX_REQUEST_VALUE = 2000000000
 MAX_REQUEST_ID_ATTEMPTS = 10
@@ -72,7 +72,7 @@ def _validate_game(
 
 def _get_game_state(
     game_id: str, player_id: str, redis_handler: RedisCacheHandler
-) -> Tuple[str, Optional[tic_tac_toe.TicTacToeInternalState], bool]:
+) -> Tuple[str, Optional[ttt.TicTacToeInternalState], bool]:
     """Get the game state without locking anything."""
     validated = _validate_game(game_id, player_id, redis_handler)
     if validated is False:
@@ -85,17 +85,17 @@ def _get_game_state(
         message = 'Game data not found.'
         return message, None, False
 
-    internal_state = tic_tac_toe.deserialize_state(state)
+    internal_state = ttt.deserialize_state(state)
     time_now = arrow.utcnow().float_timestamp
     if (
         time_now > internal_state.turn_expiration_time and
         internal_state.turn_expiration_time <= internal_state.game_expiration_time
     ):
-        internal_state.mode = tic_tac_toe.FINISHED_MODE
+        internal_state.mode = ttt.FINISHED_MODE
         internal_state.winner = (internal_state.turn + 1) % 2
         save_new_state = True
     elif time_now > internal_state.game_expiration_time:
-        internal_state.mode = tic_tac_toe.FINISHED_MODE
+        internal_state.mode = ttt.FINISHED_MODE
         internal_state.winner = -1
         save_new_state = True
     else:
@@ -141,9 +141,9 @@ def _make_game_board(
     for idx in range(3):
         for jdx in range(3):
             state = board[idx, jdx]
-            if state == tic_tac_toe.TURN_SCORES[0]:
+            if state == ttt.TURN_SCORES[0]:
                 piece = _make_game_piece('x', 'X', players[0].name, idx, jdx)
-            elif state == tic_tac_toe.TURN_SCORES[1]:
+            elif state == ttt.TURN_SCORES[1]:
                 piece = _make_game_piece('o', 'O', players[1].name, idx, jdx)
             else:
                 continue
@@ -176,7 +176,7 @@ def _get_game_status(
     winner: int,
     players: List[game_structs_pb2.PlayerInfo]
 ) -> List[game_structs_pb2.GameScore]:
-    if mode == tic_tac_toe.PLAY_MODE:
+    if mode == ttt.PLAY_MODE:
         scores = [
             game_structs_pb2.GameScore(
                 player_name=player.username,
@@ -186,7 +186,7 @@ def _get_game_status(
         ]
         status = 'not finished'
         comment = 'Keep playing'
-    elif mode == tic_tac_toe.FINISHED_MODE:
+    elif mode == ttt.FINISHED_MODE:
         if winner == -1:
             statuses = {
                 player.username: 'tie'
@@ -222,12 +222,12 @@ def _get_game_status(
 def _convert_to_status_response(
     player_id: str,
     success_message: str,
-    internal_state: tic_tac_toe.TicTacToeInternalState
+    internal_state: ttt.TicTacToeInternalState
 ) -> game_structs_pb2.GameStatusResponse:
     board = _make_game_board(internal_state.board, internal_state.players)
     current_player = internal_state.players[internal_state.turn].id
     if (
-        internal_state.mode == tic_tac_toe.PLAY_MODE and
+        internal_state.mode == ttt.PLAY_MODE and
         current_player == player_id
     ):
         legal_moves = [description.PLACE_MARK_DESCRIPTION.name]
@@ -364,14 +364,14 @@ def request_game(
                 player_info = [matched_player_info, request.player_info]
 
             # initialize the state
-            game_state = tic_tac_toe.TicTacToeInternalState(
+            game_state = ttt.TicTacToeInternalState(
                 game_id,
                 player_ids,
                 player_info,
-                tic_tac_toe.TURN_EXPIRATION_TIME,
-                tic_tac_toe.GAME_LIFETIME
+                ttt.TURN_EXPIRATION_TIME,
+                ttt.GAME_LIFETIME
             )
-            serialized_state = tic_tac_toe.serialize_state(game_state)
+            serialized_state = ttt.serialize_state(game_state)
 
             # Now we want to set:
             # 1) the queue
@@ -547,16 +547,16 @@ def make_move(
             )
             return not_found_response
 
-        internal_state = tic_tac_toe.deserialize_state(state)
+        internal_state = ttt.deserialize_state(state)
 
         # Make the move
-        message, new_state = tic_tac_toe.make_move(
+        message, new_state = ttt.make_move(
             internal_state, request.move
         )
 
         # If the move was successful, write back into redis and release lock
         if new_state is not None:
-            serialized_state = tic_tac_toe.serialize_state(new_state)
+            serialized_state = ttt.serialize_state(new_state)
             timestamp = arrow.utcnow().timestamp
             state_lifetime = (
                 internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
@@ -582,7 +582,7 @@ def get_game_status(
             handler
         )
         if save_new_state:
-            serialized_state = tic_tac_toe.serialize_state(internal_state)
+            serialized_state = ttt.serialize_state(internal_state)
             state_key = _make_state_key(request.game_id)
             timestamp = arrow.utcnow().timestamp
             state_lifetime = (
@@ -617,7 +617,7 @@ def get_legal_moves(
             handler
         )
         if save_new_state:
-            serialized_state = tic_tac_toe.serialize_state(internal_state)
+            serialized_state = ttt.serialize_state(internal_state)
             state_key = _make_state_key(request.game_id)
             timestamp = arrow.utcnow().timestamp
             state_lifetime = (
@@ -631,7 +631,7 @@ def get_legal_moves(
         )
 
     # Check if the game is finished
-    if internal_state.mode == tic_tac_toe.FINISHED_MODE:
+    if internal_state.mode == ttt.FINISHED_MODE:
         return game_structs_pb2.LegalMovesResponse(
             success=True,
             message='Game is over. No moves available.'
@@ -684,8 +684,8 @@ def forfeit_game(
             )
             return not_found_response
 
-        internal_state = tic_tac_toe.deserialize_state(state)
-        internal_state.mode = tic_tac_toe.FINISHED_MODE
+        internal_state = ttt.deserialize_state(state)
+        internal_state.mode = ttt.FINISHED_MODE
         winner_idx = None
         for idx, player_id in enumerate(internal_state.player_ids):
             if player_id != request.player_id:

@@ -6,5 +6,8 @@ python -m grpc_tools.protoc -I. --python_out=. \
 python -m grpc_tools.protoc -I. --python_out=. \
        --grpc_python_out=. chupacabra_client/protos/chupacabra.proto
 
-python -m grpc_tools.protoc -I. --python_out=. \
-       --grpc_python_out=. chupacabra_server/protos/game_server.proto
+CWD=$PWD
+cd chupacabra_server
+python -m grpc_tools.protoc -I. -I.. --python_out=. \
+       --grpc_python_out=. protos/game_server.proto
+cd $CWD
