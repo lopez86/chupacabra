@@ -1,14 +1,14 @@
-# chupacabra
-####A Simple Online Game Backend in Python
+# Project Chupacabra
+#### A Simple Online Game Backend in Python
 
-###Note: Still under construction, so nothing really works yet.
+### Note: Still under construction, so nothing really works yet.
 The story of this package started with a simple idea. Gaming websites have been on the web basically since there has been a web. How might someone go about designing and building a backend for a simple gaming website? 
 What would the public API look like? What about the overall backend architecture. 
 As I build this project, I hope to build a system that answers these questions in a way that is simple enough to be able to clearly explain my choices.
 
 I make no promises about performance or security, so I wouldn't use this in a real website. But, it will hopefully work on a laptop and could maybe even be used to play games on a local network. Again, the idea of this is to build a working tutorial not to build a full enterprise solution.
 
-##Architecture
+## Architecture
 The basic architecture should be as follows:
 
 ### Chupacabra server
