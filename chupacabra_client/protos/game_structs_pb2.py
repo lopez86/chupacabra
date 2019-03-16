@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='chupacabra_client/protos/game_structs.proto',
   package='game_structs',
   syntax='proto3',
-  serialized_pb=_b('\n+chupacabra_client/protos/game_structs.proto\x12\x0cgame_structs\"C\n\x0fMoveDescription\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\r\n\x05modes\x18\x03 \x03(\t\"4\n\x0fGameDescription\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\"A\n\x11GameMovesResponse\x12,\n\x05moves\x18\x01 \x03(\x0b\x32\x1d.game_structs.MoveDescription\"E\n\x12LegalMovesResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\r\n\x05moves\x18\x03 \x03(\t\")\n\nCoordinate\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05\"E\n\x0b\x43oordinates\x12\x0c\n\x04name\x18\x01 \x01(\t\x12(\n\x06values\x18\x02 \x03(\x0b\x32\x18.game_structs.Coordinate\"`\n\rGamePieceMove\x12\x10\n\x08piece_id\x18\x01 \x01(\t\x12,\n\tlocations\x18\x02 \x03(\x0b\x32\x19.game_structs.Coordinates\x12\x0f\n\x07\x63omment\x18\x03 \x01(\t\"o\n\x04Move\x12\x11\n\tmove_name\x18\x01 \x01(\t\x12\x11\n\tplayer_id\x18\x02 \x01(\t\x12\x30\n\x0bpiece_moves\x18\x03 \x03(\x0b\x32\x1b.game_structs.GamePieceMove\x12\x0f\n\x07\x63omment\x18\x04 \x01(\t\"b\n\tGamePiece\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06player\x18\x03 \x01(\t\x12+\n\x08location\x18\x04 \x01(\x0b\x32\x19.game_structs.Coordinates\"\\\n\tGameBoard\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\'\n\x06pieces\x18\x04 \x03(\x0b\x32\x17.game_structs.GamePiece\"Q\n\x19GameRequestStatusResponse\x12\x12\n\ngame_found\x18\x01 \x01(\x08\x12\x0f\n\x07game_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"K\n\x13GameRequestResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x12\n\nrequest_id\x18\x03 \x01(\t\"C\n\nPlayerInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05level\x18\x03 \x01(\t\x12\x0c\n\x04team\x18\x04 \x01(\t\"\x80\x01\n\tGameScore\x12\x11\n\tplayer_id\x18\x01 \x01(\t\x12\x13\n\x0bplayer_name\x18\x02 \x01(\t\x12\x12\n\nscore_type\x18\x03 \x01(\t\x12\x11\n\tint_score\x18\x04 \x01(\x05\x12\x13\n\x0b\x66loat_score\x18\x05 \x01(\x02\x12\x0f\n\x07\x63omment\x18\x06 \x01(\t\"V\n\nGameStatus\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\'\n\x06scores\x18\x03 \x03(\x0b\x32\x17.game_structs.GameScore\"\xa6\x01\n\tGameState\x12(\n\x06status\x18\x01 \x01(\x0b\x32\x18.game_structs.GameStatus\x12\'\n\x06\x62oards\x18\x02 \x03(\x0b\x32\x17.game_structs.GameBoard\x12\x0c\n\x04mode\x18\x03 \x01(\t\x12\x1b\n\x13turn_time_remaining\x18\x04 \x01(\x05\x12\x1b\n\x13game_time_remaining\x18\x05 \x01(\x05\"\x84\x01\n\x0eGameStatusInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12)\n\x07players\x18\x02 \x03(\x0b\x32\x18.game_structs.PlayerInfo\x12&\n\x05state\x18\x03 \x01(\x0b\x32\x17.game_structs.GameState\x12\x13\n\x0blegal_moves\x18\x04 \x03(\t\"i\n\x12GameStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x31\n\x0bstatus_info\x18\x03 \x01(\x0b\x32\x1c.game_structs.GameStatusInfob\x06proto3')
+  serialized_pb=_b('\n+chupacabra_client/protos/game_structs.proto\x12\x0cgame_structs\"C\n\x0fMoveDescription\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\r\n\x05modes\x18\x03 \x03(\t\"4\n\x0fGameDescription\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\"A\n\x11GameMovesResponse\x12,\n\x05moves\x18\x01 \x03(\x0b\x32\x1d.game_structs.MoveDescription\"E\n\x12LegalMovesResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\r\n\x05moves\x18\x03 \x03(\t\")\n\nCoordinate\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05\"E\n\x0b\x43oordinates\x12\x0c\n\x04name\x18\x01 \x01(\t\x12(\n\x06values\x18\x02 \x03(\x0b\x32\x18.game_structs.Coordinate\"`\n\rGamePieceMove\x12\x10\n\x08piece_id\x18\x01 \x01(\t\x12,\n\tlocations\x18\x02 \x03(\x0b\x32\x19.game_structs.Coordinates\x12\x0f\n\x07\x63omment\x18\x03 \x01(\t\"o\n\x04Move\x12\x11\n\tmove_name\x18\x01 \x01(\t\x12\x11\n\tplayer_id\x18\x02 \x01(\t\x12\x30\n\x0bpiece_moves\x18\x03 \x03(\x0b\x32\x1b.game_structs.GamePieceMove\x12\x0f\n\x07\x63omment\x18\x04 \x01(\t\"b\n\tGamePiece\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06player\x18\x03 \x01(\t\x12+\n\x08location\x18\x04 \x01(\x0b\x32\x19.game_structs.Coordinates\"\\\n\tGameBoard\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\'\n\x06pieces\x18\x04 \x03(\x0b\x32\x17.game_structs.GamePiece\"b\n\x19GameRequestStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x12\n\ngame_found\x18\x03 \x01(\x08\x12\x0f\n\x07game_id\x18\x04 \x01(\t\"K\n\x13GameRequestResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x12\n\nrequest_id\x18\x03 \x01(\t\"M\n\nPlayerInfo\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08nickname\x18\x02 \x01(\t\x12\r\n\x05level\x18\x03 \x01(\t\x12\x0c\n\x04team\x18\x04 \x01(\t\"\x80\x01\n\tGameScore\x12\x11\n\tplayer_id\x18\x01 \x01(\t\x12\x13\n\x0bplayer_name\x18\x02 \x01(\t\x12\x12\n\nscore_type\x18\x03 \x01(\t\x12\x11\n\tint_score\x18\x04 \x01(\x05\x12\x13\n\x0b\x66loat_score\x18\x05 \x01(\x02\x12\x0f\n\x07\x63omment\x18\x06 \x01(\t\"V\n\nGameStatus\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\'\n\x06scores\x18\x03 \x03(\x0b\x32\x17.game_structs.GameScore\"\xa6\x01\n\tGameState\x12(\n\x06status\x18\x01 \x01(\x0b\x32\x18.game_structs.GameStatus\x12\'\n\x06\x62oards\x18\x02 \x03(\x0b\x32\x17.game_structs.GameBoard\x12\x0c\n\x04mode\x18\x03 \x01(\t\x12\x1b\n\x13turn_time_remaining\x18\x04 \x01(\x05\x12\x1b\n\x13game_time_remaining\x18\x05 \x01(\x05\"\x84\x01\n\x0eGameStatusInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12)\n\x07players\x18\x02 \x03(\x0b\x32\x18.game_structs.PlayerInfo\x12&\n\x05state\x18\x03 \x01(\x0b\x32\x17.game_structs.GameState\x12\x13\n\x0blegal_moves\x18\x04 \x03(\t\"i\n\x12GameStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x31\n\x0bstatus_info\x18\x03 \x01(\x0b\x32\x1c.game_structs.GameStatusInfob\x06proto3')
 )
 
 
@@ -469,22 +469,29 @@ _GAMEREQUESTSTATUSRESPONSE = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='game_found', full_name='game_structs.GameRequestStatusResponse.game_found', index=0,
+      name='success', full_name='game_structs.GameRequestStatusResponse.success', index=0,
       number=1, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='game_id', full_name='game_structs.GameRequestStatusResponse.game_id', index=1,
+      name='message', full_name='game_structs.GameRequestStatusResponse.message', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='message', full_name='game_structs.GameRequestStatusResponse.message', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='game_found', full_name='game_structs.GameRequestStatusResponse.game_found', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='game_id', full_name='game_structs.GameRequestStatusResponse.game_id', index=3,
+      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -502,7 +509,7 @@ _GAMEREQUESTSTATUSRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=841,
-  serialized_end=922,
+  serialized_end=939,
 )
 
 
@@ -546,8 +553,8 @@ _GAMEREQUESTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=924,
-  serialized_end=999,
+  serialized_start=941,
+  serialized_end=1016,
 )
 
 
@@ -559,14 +566,14 @@ _PLAYERINFO = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='game_structs.PlayerInfo.id', index=0,
+      name='username', full_name='game_structs.PlayerInfo.username', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='game_structs.PlayerInfo.name', index=1,
+      name='nickname', full_name='game_structs.PlayerInfo.nickname', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -598,8 +605,8 @@ _PLAYERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1001,
-  serialized_end=1068,
+  serialized_start=1018,
+  serialized_end=1095,
 )
 
 
@@ -664,8 +671,8 @@ _GAMESCORE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1071,
-  serialized_end=1199,
+  serialized_start=1098,
+  serialized_end=1226,
 )
 
 
@@ -709,8 +716,8 @@ _GAMESTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1201,
-  serialized_end=1287,
+  serialized_start=1228,
+  serialized_end=1314,
 )
 
 
@@ -768,8 +775,8 @@ _GAMESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1290,
-  serialized_end=1456,
+  serialized_start=1317,
+  serialized_end=1483,
 )
 
 
@@ -820,8 +827,8 @@ _GAMESTATUSINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1459,
-  serialized_end=1591,
+  serialized_start=1486,
+  serialized_end=1618,
 )
 
 
@@ -865,8 +872,8 @@ _GAMESTATUSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1593,
-  serialized_end=1698,
+  serialized_start=1620,
+  serialized_end=1725,
 )
 
 _GAMEMOVESRESPONSE.fields_by_name['moves'].message_type = _MOVEDESCRIPTION
