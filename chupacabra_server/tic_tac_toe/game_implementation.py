@@ -5,6 +5,7 @@ from chupacabra_client.protos import game_structs_pb2
 import numpy as np
 
 from dbs.redis_cache import RedisCacheHandler
+from game_server.game_servicer import GameImplementation
 from protos import game_server_pb2
 from tic_tac_toe import tic_tac_toe
 from tic_tac_toe.config import get_redis_handler
@@ -453,3 +454,18 @@ def forfeit_game(
             internal_state
         )
         return response
+
+
+def make_tic_tac_toe_implementation() -> GameImplementation:
+    """Get the game implementation for tic tac toe"""
+    implementation = GameImplementation(
+        request_game_function=request_game,
+        check_game_request_function=check_game_request,
+        describe_game_function=describe_game,
+        describe_moves_function=describe_moves,
+        make_move_function=make_move,
+        get_game_status_function=get_game_status,
+        get_legal_moves_function=get_legal_moves,
+        forfeit_game_function=forfeit_game
+    )
+    return implementation

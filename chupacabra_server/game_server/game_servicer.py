@@ -1,30 +1,53 @@
+from typing import Callable, NamedTuple
+
 from protos.game_server_pb2_grpc import GameServerServicer
 
 
-class BasicGameServicer(GameServerServicer):
+class GameImplementation(NamedTuple):
+    """Class to hold the different game functions."""
 
-    def __init__(self, game, redis_getter) -> None:
+    request_game_function: Callable
+    check_game_request_function: Callable
+    describe_game_function: Callable
+    describe_moves_function: Callable
+    make_move_function: Callable
+    get_game_status_function: Callable
+    get_legal_moves_function: Callable
+    forfeit_game_function: Callable
+
+
+class BasicGameServicer(GameServerServicer):
+    def __init__(self, implementation: GameImplementation) -> None:
         """Basic game server to run on a fairly common game interface."""
-        self._game = game
-        self._redis_getter = redis_getter
+        self._implementation: GameImplementation = implementation
 
     def RequestGame(self, request, context):
-        raise NotImplementedError('RequestGame is not implemented.')
+        """Request a game."""
+        return self._implementation.request_game_function(request)
+
+    def CheckGameRequest(self, request, context):
+        """Check if the request has been accepted."""
+        return self._implementation.check_game_request_function(request)
 
     def DescribeGame(self, request, context):
-        raise NotImplementedError('DescribeGame is not implemented.')
+        """Describe the game"""
+        return self._implementation.describe_game_function(request)
 
     def DescribeMoves(self, request, context):
-        raise NotImplementedError('DescribeMoves is not implemented.')
+        """Describe the game moves."""
+        return self._implementation.describe_moves_function(request)
 
     def MakeMove(self, request, context):
-        raise NotImplementedError('MakeMove is not implemented.')
+        """Make a move"""
+        return self._implementation.describe_moves_function(request)
 
     def GetGameStatus(self, request, context):
-        raise NotImplementedError('GetGameStatus is not implemented.')
+        """Get the game status"""
+        return self._implementation.get_game_status_function(request)
 
     def GetLegalMoves(self, request, context):
-        raise NotImplementedError('GetLegalMoves is not implemented.')
+        """Get the legal moves at the current time."""
+        return self._implementation.get_legal_moves_function(request)
 
     def ForfeitGame(self, request, context):
-        raise NotImplementedError('ForfeitGame is not implemented.')
+        return self._implementation.forfeit_game_function(request)
