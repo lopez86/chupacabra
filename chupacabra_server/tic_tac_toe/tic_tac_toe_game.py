@@ -1,10 +1,14 @@
 import copy
 import json
+import logging
 from typing import Dict, List, Optional, Tuple
 
 import arrow
 from chupacabra_client.protos.game_structs_pb2 import PlayerInfo, Move
 import numpy as np
+
+
+logger = logging.getLogger(__name__)
 
 
 PLAY_MODE = 'play'
@@ -299,6 +303,7 @@ def make_move(
         new_internal_state.winner = (new_internal_state.turn + 1) % 2
     elif current_time > internal_state.game_expiration_time:
         # Game has expired
+        logger.info('Game {} has expired'.format(internal_state.id))
         new_internal_state = copy.deepcopy(internal_state)
         new_internal_state.mode = FINISHED_MODE
         new_internal_state.winner = -1

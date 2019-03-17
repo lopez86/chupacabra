@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import List, Optional, Tuple
 
 import arrow
@@ -11,6 +12,9 @@ from protos import game_server_pb2
 from tic_tac_toe import tic_tac_toe_game as ttt
 from tic_tac_toe.config import get_redis_handler
 from tic_tac_toe import description
+
+
+logger = logging.getLogger(__name__)
 
 
 TTT_MOVE_BLOCK_TIME = 1  # in seconds
@@ -64,9 +68,13 @@ def _validate_game(
 
     deserialized_data = json.loads(data)
     if not isinstance(deserialized_data, list):
+        logger.error('Game {} has badly formed validation data.'.format(game_id))
         raise AssertionError('Malformed tictactoe game metadata.')
     if player_id in deserialized_data:
         return True
+    else:
+        logger.error('User {} attempting to access Tic-Tac-Toe game {} '
+                     'without being a participant.'.format(player_id, game_id))
     return False
 
 
@@ -82,6 +90,7 @@ def _get_game_state(
     state_key = _make_state_key(game_id)
     state = redis_handler.get(state_key)
     if state is None:
+        logger.error('Game {} validated but data not found.'.format(game_id))
         message = 'Game data not found.'
         return message, None, False
 
@@ -376,7 +385,8 @@ def request_game(
             # Now we want to set:
             # 1) the queue
             # 2) the game
-            # 3) the request
+            # 3) the validation data
+            # 4) the request
             # The idea for this order is to prevent a request from
             # generating multiple games (easier to have it just fail)
             # and also to prevent a request from getting assigned
@@ -395,6 +405,11 @@ def request_game(
             # Save the game:
             game_key = _make_state_key(game_id)
             handler.set(game_key, serialized_state, lifetime=GAME_PERSISTENCE_TIME)
+
+            # Save the validation data
+            validation_key = _make_validation_key(game_id)
+            validation_data = json.dumps(player_ids)
+            handler.set(validation_key, validation_data, lifetime=GAME_PERSISTENCE_TIME)
 
             # Save the request
             serialized_request = json.dumps({
@@ -541,6 +556,7 @@ def make_move(
         state_key = _make_state_key(request.game_id)
         state = handler.get(state_key)
         if state is None:
+            logger.error('Game {} validated but data not found.'.format(request.game_id))
             not_found_response = game_structs_pb2.GameStatusResponse(
                 success=False,
                 message='Game data not found.'
@@ -678,6 +694,7 @@ def forfeit_game(
         state_key = _make_state_key(request.game_id)
         state = handler.get(state_key)
         if state is None:
+            logger.error('Game {} validated but data not found'.format(request.game_id))
             not_found_response = game_structs_pb2.GameStatusResponse(
                 success=False,
                 message='Game data not found.'
