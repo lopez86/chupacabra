@@ -74,11 +74,11 @@ class TicTacToeInternalState:
         self.turn_expiration_time = turn_expiration_time
 
         if board is None:
-            self.board = np.array([3, 3], np.int8)
+            self.board = np.zeros([3, 3], np.int8)
         else:
             if not isinstance(board, np.ndarray):
                 raise AssertionError('Board must be a numpy array. Got {}'.format(type(board)))
-            if not isinstance(board.dtype, np.int8):
+            if board.dtype != np.int8:
                 raise AssertionError('Board must have type numpy.int8. Got {}'.format(board.dtype))
             if board.shape != (3, 3):
                 raise AssertionError('Board shape must be (3, 3). Got {}'.format(board.shape))
@@ -107,8 +107,8 @@ def serialize_state(state: TicTacToeInternalState) -> str:
     """Serialize an internal state into a string."""
     players_list = [
         {
-            'username': player.id,
-            'nickname': player.name,
+            'username': player.username,
+            'nickname': player.nickname,
             'level': player.level,
             'team': player.team
         }
@@ -135,7 +135,7 @@ def deserialize_state(serialized_game: str) -> 'TicTacToeInternalState':
     game_id = game_data[ID_KEY]
     player_ids = game_data[PLAYER_IDS_KEY]
     players_list = game_data[PLAYER_KEY]
-    board = game_data[BOARD_KEY]
+    board = np.array(game_data[BOARD_KEY], dtype=np.int8)
     mode = game_data[MODE_KEY]
     turn = game_data[TURN_KEY]
     winner = game_data[WINNER_KEY]
@@ -143,8 +143,8 @@ def deserialize_state(serialized_game: str) -> 'TicTacToeInternalState':
     turn_ex_time = game_data[TURN_EX_TIME_KEY]
     players = [
         PlayerInfo(
-            id=player['username'],
-            name=player['nickname'],
+            username=player['username'],
+            nickname=player['nickname'],
             level=player['level'],
             team=player['team']
         )

@@ -10,7 +10,6 @@ import "chupacabra_client/protos/game_structs.proto";
 message GameRequest {
     string player_id = 1;
     game_structs.PlayerInfo player_info = 2;
-    string game_id = 3;
 }
 
 // A status request for a game

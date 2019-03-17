@@ -22,7 +22,7 @@ TTT_REQUEST_BLOCK_TIME = 1  # in seconds
 GAME_PERSISTENCE_TIME = 15 * 60  # 15 minutes - redis time
 REQUEST_LIFETIME = 60  # 1 minutes
 QUEUE_LIFETIME = 90  # 1.5 minutes
-GAME_PADDED_LIFETIME = GAME_PERSISTENCE_TIME + ttt.GAME_LIFETIME
+GAME_PADDED_LIFETIME = GAME_PERSISTENCE_TIME - ttt.GAME_LIFETIME
 
 MAX_REQUEST_VALUE = 2000000000
 MAX_REQUEST_ID_ATTEMPTS = 10
@@ -332,15 +332,19 @@ def request_game(
             valid_requests = [
                 game_request
                 for game_request in request_queue
-                if game_request['expiration'] < time_now
+                if game_request['expiration'] > time_now
             ]
+        else:
+            valid_requests = []
+
+        if valid_requests:
             # Check if the current user is in the queue (slow -- need better method to do this)
             for game_request in valid_requests:
                 if game_request['player_id'] == request.player_id:
                     return game_structs_pb2.GameRequestResponse(
                         success=False,
                         message='You already have a request in the queue.',
-                        request_id=game_request['request_id']
+                        request_id=game_request['id']
                     )
 
             # Generate game id
@@ -377,8 +381,8 @@ def request_game(
                 game_id,
                 player_ids,
                 player_info,
-                ttt.TURN_EXPIRATION_TIME,
-                ttt.GAME_LIFETIME
+                time_now + ttt.TURN_EXPIRATION_TIME,
+                time_now + ttt.GAME_LIFETIME
             )
             serialized_state = ttt.serialize_state(game_state)
 
@@ -443,9 +447,13 @@ def request_game(
                 'username': request.player_info.username,
                 'nickname': request.player_info.nickname,
                 'level': request.player_info.level,
-                'team': request.player_info.team
+                'team': request.player_info.team,
+                'expiration': time_now + REQUEST_LIFETIME
             }
-            serialized_request = json.dumps(queue_request)
+            request_dict = {
+                'player': request.player_id
+            }
+            serialized_request = json.dumps(request_dict)
             serialized_queue = json.dumps([queue_request])
             # Save the request first then the queue
             handler.set(
@@ -492,7 +500,7 @@ def check_game_request(
         else:
             game_id = data.get('game')
             success = True
-            if game_id is None:
+            if game_id is not None:
                 message = 'Game found.'
             else:
                 message = 'Game not initialized yet.'
@@ -603,7 +611,8 @@ def get_game_status(
             timestamp = arrow.utcnow().timestamp
             state_lifetime = (
                 internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
-            handler.set(state_key, serialized_state, lifetime=state_lifetime)
+            if state_lifetime > 0:
+                handler.set(state_key, serialized_state, lifetime=state_lifetime)
 
     if internal_state is None:
         return game_structs_pb2.GameStatusResponse(

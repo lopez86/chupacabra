@@ -31,15 +31,15 @@ class BasicGameServicer(GameServerServicer):
 
     def DescribeGame(self, request, context):
         """Describe the game"""
-        return self._implementation.describe_game_function(request)
+        return self._implementation.describe_game_function()
 
     def DescribeMoves(self, request, context):
         """Describe the game moves."""
-        return self._implementation.describe_moves_function(request)
+        return self._implementation.describe_moves_function()
 
     def MakeMove(self, request, context):
         """Make a move"""
-        return self._implementation.describe_moves_function(request)
+        return self._implementation.make_move_function(request)
 
     def GetGameStatus(self, request, context):
         """Get the game status"""

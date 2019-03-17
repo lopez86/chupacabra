@@ -103,6 +103,7 @@ message GameRequestResponse {
     bool success = 1;
     string message = 2;
     string request_id = 3;
+    string game_id = 4;
 }
 
 
