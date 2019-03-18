@@ -126,4 +126,84 @@ class TestTicTacToeServer(TestCase):
         # This position is already taken
         move_response = self.client_stub.MakeMove(move2)
         self.assertFalse(move_response.success)
-
+        move2 = MoveRequest(
+            game_info=second_player,
+            move=Move(
+                move_name='place_mark',
+                piece_moves=[
+                    GamePieceMove(
+                        locations=[
+                            Coordinates(
+                                values=[
+                                    Coordinate(name='x', value=0),
+                                    Coordinate(name='y', value=1)
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            )
+        )
+        move_response = self.client_stub.MakeMove(move2)
+        self.assertTrue(move_response.success)
+        move3 = MoveRequest(
+            game_info=first_player,
+            move=Move(
+                move_name='place_mark',
+                piece_moves=[
+                    GamePieceMove(
+                        locations=[
+                            Coordinates(
+                                values=[
+                                    Coordinate(name='x', value=1),
+                                    Coordinate(name='y', value=0)
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            )
+        )
+        move_response = self.client_stub.MakeMove(move3)
+        self.assertTrue(move_response.success)
+        move4 = MoveRequest(
+            game_info=second_player,
+            move=Move(
+                move_name='place_mark',
+                piece_moves=[
+                    GamePieceMove(
+                        locations=[
+                            Coordinates(
+                                values=[
+                                    Coordinate(name='x', value=1),
+                                    Coordinate(name='y', value=1)
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            )
+        )
+        move_response = self.client_stub.MakeMove(move4)
+        self.assertTrue(move_response.success)
+        move5 = MoveRequest(
+            game_info=first_player,
+            move=Move(
+                move_name='place_mark',
+                piece_moves=[
+                    GamePieceMove(
+                        locations=[
+                            Coordinates(
+                                values=[
+                                    Coordinate(name='x', value=2),
+                                    Coordinate(name='y', value=0)
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            )
+        )
+        move_response = self.client_stub.MakeMove(move5)
+        self.assertTrue(move_response.success)
+        self.assertEqual('over', move_response.status_info.state.mode)
