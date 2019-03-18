@@ -178,7 +178,7 @@ CANNOT_MOVE_MESSAGE = 'You may not make a move at this time.'
 
 def _validate_game_state(
     internal_state: TicTacToeInternalState,
-    move: Move
+    player_id: str
 ) -> Tuple[bool, str]:
     """Validate if the state is consistent with attempting the move.
 
@@ -190,11 +190,12 @@ def _validate_game_state(
         tuple of bool (True=pass, False=fail), and string (message)
     """
     # Game is not in play mode
+
     if internal_state.mode != PLAY_MODE:
         return False, NOT_IN_PLAY_MODE_MESSAGE
     current_player = internal_state.player_ids[internal_state.turn]
     # Wrong player's turn
-    if move.player_id != current_player:
+    if player_id != current_player:
         return False, CANNOT_MOVE_MESSAGE
 
     return True, ''
@@ -276,7 +277,8 @@ def _check_for_game_over(board: np.ndarray) -> Tuple[bool, int]:
 
 def make_move(
     internal_state: TicTacToeInternalState,
-    move: Move
+    move: Move,
+    player_id: str
 ) -> Tuple[str, Optional[TicTacToeInternalState]]:
     """Attempt to make a move.
 
@@ -290,7 +292,7 @@ def make_move(
             maybe(internal state), the new internal state if the move was a success
     """
     # First validate the move
-    is_validated, message = _validate_game_state(internal_state, move)
+    is_validated, message = _validate_game_state(internal_state, player_id)
     if not is_validated:
         return message, None
 

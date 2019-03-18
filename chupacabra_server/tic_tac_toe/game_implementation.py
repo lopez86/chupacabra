@@ -151,9 +151,9 @@ def _make_game_board(
         for jdx in range(3):
             state = board[idx, jdx]
             if state == ttt.TURN_SCORES[0]:
-                piece = _make_game_piece('x', 'X', players[0].name, idx, jdx)
+                piece = _make_game_piece('x', 'X', players[0].username, idx, jdx)
             elif state == ttt.TURN_SCORES[1]:
-                piece = _make_game_piece('o', 'O', players[1].name, idx, jdx)
+                piece = _make_game_piece('o', 'O', players[1].username, idx, jdx)
             else:
                 continue
             pieces.append(piece)
@@ -231,10 +231,11 @@ def _get_game_status(
 def _convert_to_status_response(
     player_id: str,
     success_message: str,
-    internal_state: ttt.TicTacToeInternalState
+    internal_state: ttt.TicTacToeInternalState,
+    success: bool
 ) -> game_structs_pb2.GameStatusResponse:
     board = _make_game_board(internal_state.board, internal_state.players)
-    current_player = internal_state.players[internal_state.turn].id
+    current_player = internal_state.player_ids[internal_state.turn]
     if (
         internal_state.mode == ttt.PLAY_MODE and
         current_player == player_id
@@ -260,7 +261,7 @@ def _convert_to_status_response(
     )
 
     response = game_structs_pb2.GameStatusResponse(
-        success=True,
+        success=success,
         message=success_message,
         status_info=status_info
     )
@@ -545,8 +546,8 @@ def make_move(
     """Make a move."""
     handler = get_redis_handler()
     validated = _validate_game(
-        request.game_id,
-        request.player_id,
+        request.game_info.game_id,
+        request.game_info.player_id,
         handler
     )
 
@@ -558,13 +559,16 @@ def make_move(
         return response
 
     # Lock the state so that we can make a move
-    lock_key = _make_state_lock_key(request.game_id)
+    lock_key = _make_state_lock_key(request.game_info.game_id)
     with handler.lock(lock_key, blocking_timeout=TTT_MOVE_BLOCK_TIME):
         # Now grab the state from redis
-        state_key = _make_state_key(request.game_id)
+        state_key = _make_state_key(request.game_info.game_id)
         state = handler.get(state_key)
         if state is None:
-            logger.error('Game {} validated but data not found.'.format(request.game_id))
+            logger.error(
+                'Game {} validated but data not found.'
+                .format(request.game_info.game_id)
+            )
             not_found_response = game_structs_pb2.GameStatusResponse(
                 success=False,
                 message='Game data not found.'
@@ -575,21 +579,24 @@ def make_move(
 
         # Make the move
         message, new_state = ttt.make_move(
-            internal_state, request.move
+            internal_state, request.move, request.game_info.player_id
         )
 
         # If the move was successful, write back into redis and release lock
         if new_state is not None:
             serialized_state = ttt.serialize_state(new_state)
             timestamp = arrow.utcnow().timestamp
-            state_lifetime = (
+            state_lifetime = int(
                 internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
             handler.set(state_key, serialized_state, lifetime=state_lifetime)
+            success = True
         else:
             new_state = internal_state
+            success = False
 
     # craft and return the correct response
-    response = _convert_to_status_response(request.player_id, message, new_state)
+    response = _convert_to_status_response(
+        request.game_info.player_id, message, new_state, success)
     return response
 
 
@@ -609,7 +616,7 @@ def get_game_status(
             serialized_state = ttt.serialize_state(internal_state)
             state_key = _make_state_key(request.game_id)
             timestamp = arrow.utcnow().timestamp
-            state_lifetime = (
+            state_lifetime = int(
                 internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
             if state_lifetime > 0:
                 handler.set(state_key, serialized_state, lifetime=state_lifetime)
@@ -624,7 +631,8 @@ def get_game_status(
     response = _convert_to_status_response(
         request.player_id,
         success_message,
-        internal_state
+        internal_state,
+        True
     )
     return response
 
@@ -645,7 +653,7 @@ def get_legal_moves(
             serialized_state = ttt.serialize_state(internal_state)
             state_key = _make_state_key(request.game_id)
             timestamp = arrow.utcnow().timestamp
-            state_lifetime = (
+            state_lifetime = int(
                 internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
             handler.set(state_key, serialized_state, lifetime=state_lifetime)
 
@@ -711,6 +719,14 @@ def forfeit_game(
             return not_found_response
 
         internal_state = ttt.deserialize_state(state)
+        # If the game is over, we don't want to do anything
+        if internal_state.mode != ttt.PLAY_MODE:
+            return _convert_to_status_response(
+                request.player_id,
+                'Game already over. Cannot forfeit.',
+                internal_state,
+                False
+            )
         internal_state.mode = ttt.FINISHED_MODE
         winner_idx = None
         for idx, player_id in enumerate(internal_state.player_ids):
@@ -722,11 +738,17 @@ def forfeit_game(
             raise AssertionError('Could not find the winning player.')
 
         internal_state.winner = winner_idx
+        serialized_state = ttt.serialize_state(internal_state)
+        timestamp = arrow.utcnow().timestamp
+        state_lifetime = int(
+            internal_state.game_expiration_time - timestamp + GAME_PADDED_LIFETIME)
+        handler.set(state_key, serialized_state, lifetime=state_lifetime)
         success_message = 'Success. You have forfeited the game.'
         response = _convert_to_status_response(
             request.player_id,
             success_message,
-            internal_state
+            internal_state,
+            True
         )
         return response
 
