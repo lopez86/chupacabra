@@ -6,6 +6,7 @@ import numpy as np
 from sqlalchemy import create_engine
 
 
+# Check if a username or email is already taken
 CHECK_USER_QUERY = """
 SELECT username, email
 FROM user_auth
@@ -22,6 +23,7 @@ class CheckUserIndices(IntEnum):
     EMAIL = 1
 
 
+# Check if a user id is already taken
 CHECK_USER_ID_QUERY = """
 SELECT user_id
 FROM user_auth
@@ -36,6 +38,7 @@ class CheckUserIdIndices(IntEnum):
     ID = 0
 
 
+# Insert a new user into the table
 NEW_USER_QUERY = """
 INSERT INTO user_auth
 (username, email, user_id, nickname, password_hash)
@@ -44,6 +47,7 @@ VALUES
 """
 
 
+# Check if a user has given the correct password
 CHECK_USER_AUTH_QUERY = """
 SELECT user_id, username, nickname, email
 FROM user_auth
@@ -61,11 +65,13 @@ class CheckUserAuthIndices(IntEnum):
     EMAIL = 3
 
 
+# Update a user's password
 UPDATE_PASSWORD_QUERY = """
 UPDATE user_auth
 SET password_hash='{}' WHERE user_id='{}'
 """
 
+# Create a new user authentication table if it doesn't exist
 CREATE_TABLE_QUERY = """
 CREATE TABLE IF NOT EXISTS user_auth(
     user_id text PRIMARY KEY,
@@ -76,7 +82,9 @@ CREATE TABLE IF NOT EXISTS user_auth(
   )
 """
 
+# If a proposed user id is taken, retry this many times before failing
 MAX_USER_ID_ATTEMPTS = 5
+# User IDs are random ints right now. They are less than this value
 RANDOMIZATION_SCALE = 1000000000
 
 
@@ -90,18 +98,38 @@ class UserAuthData(NamedTuple):
 
 
 class AuthenticationServerHandler:
-    def __init__(self, url: str, port: int, db: str, username: str, password: str) -> None:
+    def __init__(
+        self,
+        url: str,
+        port: int,
+        db: str,
+        username: str,
+        password: str
+    ) -> None:
+        """Handler for a basic postgres database holding user authentication data.
+
+        When deployed in the wild, the input values should be treated as secrets.
+
+        Args:
+            url: str, the base url for the server
+            port: int, the port for the server
+            db: str, the database name,
+            username: str, the username for the database (should be a secret)
+            password: str, the password for the database (definitely a secret)
+        """
         self._engine = create_engine(
             'postgres://{}:{}@{}:{}/{}'.format(username, password, url, port, db)
         )
 
     def create_database(self) -> None:
+        """Create the database if it doesn't exist."""
         conn = self._engine.connect()
         conn.execute('commit')
         conn.execute('CREATE DATABASE chupacabra')
         conn.close()
 
     def create_table(self) -> None:
+        """Create the user authentication table if it doesn't exist."""
         self._engine.execute(CREATE_TABLE_QUERY)
 
     def add_new_user(
@@ -111,6 +139,23 @@ class AuthenticationServerHandler:
         password_hash: str,
         nickname: str
     ) -> Tuple[bool, str]:
+        """Try to add a new user to the database.
+
+        The username and nickname are meant to be public within the platform
+        and may be exposed to other users by games.
+
+        Args:
+            username: str, the proposed username (unique)
+            email: str, the user's email (unique)
+            password_hash: str, a hash of the proposed password
+            nickname: str, the user's nickname (not necessarily unique)
+
+        Returns:
+            2-tuple of:
+            bool: True for success, False for failure
+            str: Any messages to be relayed back to the user.
+        """
+        # First check if the username or email has already been used
         results = self._engine.execute(
             CHECK_USER_QUERY.format(username, email)
         ).fetchall()
@@ -120,9 +165,12 @@ class AuthenticationServerHandler:
             if result[CheckUserIndices.EMAIL.value] == email:
                 return False, 'This email has already been used.'
 
+        # Now set up the random state to get a user id
         user_id = ''
         time = int(arrow.utcnow().float_timestamp * RANDOMIZATION_SCALE) % RANDOMIZATION_SCALE
         random_state = np.random.RandomState(time)
+        # Propose a user id and check if it's available. On some number of failures
+        # just fail.
         for _ in range(MAX_USER_ID_ATTEMPTS):
             proposed_user_id = str(random_state.randint(RANDOMIZATION_SCALE))
             results = self._engine.execute(
@@ -132,23 +180,37 @@ class AuthenticationServerHandler:
                 user_id = proposed_user_id
                 break
 
+        # We didn't get a good id in enough tries
         if not user_id:
             return False, 'Could not create a new user. Please try again.'
 
+        # Add the user
         self._engine.execute(
             NEW_USER_QUERY.format(username, email, user_id, nickname, password_hash)
         )
 
         return True, 'Success'
 
-    def check_user(self, username: str, password_hash: str) -> Optional[UserAuthData]:
+    def check_user_creds(
+        self,
+        username: str,
+        password_hash: str
+    ) -> Optional[UserAuthData]:
+        """Check if the user passed in valid credentials
+
+        Args:
+            username: str, the username
+            password_hash: str, a hash of the original password entered
+                by the user
+
+        Returns:
+            maybe(UserAuthData), None if the check fails
+        """
         user_data = self._engine.execute(
             CHECK_USER_AUTH_QUERY.format(username, password_hash)
         ).fetchone()
         if not user_data != 1:
             return None
-
-        print(user_data)
 
         user_auth_data = UserAuthData(
             user_id=user_data[CheckUserAuthIndices.ID.value],
