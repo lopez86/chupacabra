@@ -1,4 +1,5 @@
 import json
+import hashlib
 import logging
 from typing import Optional
 
@@ -16,6 +17,13 @@ SESSION_ATTEMPT_RETRIES = 5
 BIG_NUMBER = 1000000000
 SESSION_LENGTH = 12 * 60 * 60  # 12 hours
 SESSION_CACHE_EXPIRATION = SESSION_LENGTH + 5
+
+
+def hash_password(
+    password: str
+) -> str:
+    """Hash the password. WARNING: Not meant to be up to production standards."""
+    return hashlib.sha256(password)
 
 
 def authenticate_user(

@@ -1,64 +1,277 @@
+from typing import Dict, List
+
 from chupacabra_client.protos import chupacabra_pb2, game_structs_pb2
+
+from dbs.authentication import AuthenticationServerHandler
+from dbs.redis_cache import RedisCacheHandler
+from protos import game_server_pb2
+from protos.game_server_pb2_grpc import GameServerStub
+from .authentication import authenticate_session, create_session, hash_password
+
+
+AUTHENTICATION_FAILED = 'Authentication failed.'
+GAME_TYPE_NOT_FOUND = 'Game of type \'{}\' not found.'
 
 
 def register_user(
-    request: chupacabra_pb2.UserRequest
+    request: chupacabra_pb2.UserRequest,
+    handler: AuthenticationServerHandler
 ) -> chupacabra_pb2.UserResponse:
     """Register a new user."""
-    raise NotImplementedError()
+    username = request.username
+    nickname = request.nickname
+    password_hash = hash_password(request.password)
+    email = request.email
+    success, message = handler.add_new_user(username, email, password_hash, nickname)
+    response = chupacabra_pb2.UserResponse(
+        success=success,
+        response=message
+    )
+    return response
 
 
 def begin_session(
-    request: chupacabra_pb2.SessionRequest
+    request: chupacabra_pb2.SessionRequest,
+    auth_server_handler: AuthenticationServerHandler,
+    cache_handler: RedisCacheHandler
 ) -> chupacabra_pb2.SessionResponse:
     """Try to begin a new session."""
-    raise NotImplementedError()
+    username = request.username
+    password_hash = hash_password(request.password)
+    user_auth_data = auth_server_handler.check_user_creds(username, password_hash)
+    session_id, message = create_session(user_auth_data, cache_handler)
+    if session_id:
+        response = chupacabra_pb2.SessionResponse(
+            success=True,
+            message=message,
+            session_id=session_id
+        )
+    else:
+        response = chupacabra_pb2.SessionResponse(
+            success=False,
+            message=message
+        )
+    return response
 
 
 def list_available_games(
-    request: chupacabra_pb2.PlayerGameInfo
+    request: chupacabra_pb2.PlayerGameInfo,
+    games: List[str],
+    session_handler: RedisCacheHandler
 ) -> chupacabra_pb2.AvailableGamesResponse:
     """List the games available on the server."""
-    raise NotImplementedError()
+    username = request.username
+    session_id = request.session_id
+    user_info = authenticate_session(username, session_id, session_handler)
+    if not user_info:
+        return chupacabra_pb2.AvailableGamesResponse(
+            success=False,
+            message=AUTHENTICATION_FAILED
+        )
+
+    descriptions = [
+        game_structs_pb2.GameDescription(
+            name=game
+        )
+        for game in games
+    ]
+    return chupacabra_pb2.AvailableGamesResponse(
+        descriptions=descriptions,
+        success=True,
+        message='Success'
+    )
 
 
 def request_game(
-    request: chupacabra_pb2.GameRequest
+    request: chupacabra_pb2.GameRequest,
+    game_map: Dict[str, GameServerStub],
+    session_handler: RedisCacheHandler
 ) -> game_structs_pb2.GameRequestResponse:
     """Request a new game."""
-    raise NotImplementedError()
+    username = request.username
+    session_id = request.session_id
+    user_data = authenticate_session(username, session_id, session_handler)
+    if user_data is None:
+        return game_structs_pb2.GameRequestResponse(
+            success=False,
+            message=AUTHENTICATION_FAILED
+        )
+
+    game_stub = game_map.get(request.game_type)
+    if game_stub is None:
+        return game_structs_pb2.GameRequestResponse(
+            success=False,
+            message=GAME_TYPE_NOT_FOUND.format(request.game_type)
+        )
+
+    player_info = game_structs_pb2.PlayerInfo(
+        username=username,
+        nickname=user_data.nickname
+    )
+
+    internal_request = game_server_pb2.GameRequest(
+        player_id=user_data.user_id,
+        player_info=player_info
+    )
+
+    response = game_stub.RequestGame(internal_request)
+    return response
 
 
 def check_game_request(
-    request: chupacabra_pb2.GameRequestStatus
+    request: chupacabra_pb2.GameRequestStatus,
+    game_map: Dict[str, GameServerStub],
+    session_handler: RedisCacheHandler
 ) -> game_structs_pb2.GameRequestStatusResponse:
     """Check if the game request has been fulfilled"""
-    raise NotImplementedError()
+    username = request.username
+    session_id = request.session_id
+    user_data = authenticate_session(username, session_id, session_handler)
+    if user_data is None:
+        return game_structs_pb2.GameRequestStatusResponse(
+            success=False,
+            message=AUTHENTICATION_FAILED
+        )
+
+    game_stub = game_map.get(request.game_type)
+    if game_stub is None:
+        return game_structs_pb2.GameRequestStatusResponse(
+            success=False,
+            message=GAME_TYPE_NOT_FOUND.format(request.game_type)
+        )
+
+    internal_request = game_server_pb2.GameRequestStatusRequest(
+        player_id=user_data.user_id,
+        request_id=request.request_id
+    )
+
+    response = game_stub.RequestGame(internal_request)
+    return response
 
 
 def check_game_state(
-    request: chupacabra_pb2.PlayerGameInfo
+    request: chupacabra_pb2.PlayerGameInfo,
+    game_map: Dict[str, GameServerStub],
+    session_handler: RedisCacheHandler
 ) -> game_structs_pb2.GameStatusResponse:
     """Check the state of an existing game."""
-    raise NotImplementedError()
+    username = request.username
+    session_id = request.session_id
+    user_data = authenticate_session(username, session_id, session_handler)
+    if user_data is None:
+        return game_structs_pb2.GameStatusResponse(
+            success=False,
+            message=AUTHENTICATION_FAILED
+        )
+
+    game_stub = game_map.get(request.game_type)
+    if game_stub is None:
+        return game_structs_pb2.GameStatusResponse(
+            success=False,
+            message=GAME_TYPE_NOT_FOUND.format(request.game_type)
+        )
+
+    internal_request = game_server_pb2.UserGameInfo(
+        player_id=user_data.user_id,
+        game_id=request.game_id
+    )
+
+    response = game_stub.GetGameStatus(internal_request)
+    return response
 
 
 def check_legal_moves(
-    request: chupacabra_pb2.PlayerGameInfo
+    request: chupacabra_pb2.PlayerGameInfo,
+    game_map: Dict[str, GameServerStub],
+    session_handler: RedisCacheHandler
 ) -> game_structs_pb2.LegalMovesResponse:
     """Check what types of moves are available for the player at this point in the game."""
-    raise NotImplementedError()
+    username = request.username
+    session_id = request.session_id
+    user_data = authenticate_session(username, session_id, session_handler)
+    if user_data is None:
+        return game_structs_pb2.GameStatusResponse(
+            success=False,
+            message=AUTHENTICATION_FAILED
+        )
+
+    game_stub = game_map.get(request.game_type)
+    if game_stub is None:
+        return game_structs_pb2.GameStatusResponse(
+            success=False,
+            message=GAME_TYPE_NOT_FOUND.format(request.game_type)
+        )
+
+    internal_request = game_server_pb2.UserGameInfo(
+        player_id=user_data.user_id,
+        game_id=request.game_id
+    )
+
+    response = game_stub.GetLegalMoves(internal_request)
+    return response
 
 
 def make_move(
-    request: chupacabra_pb2.MoveRequest
+    request: chupacabra_pb2.MoveRequest,
+    game_map: Dict[str, GameServerStub],
+    session_handler: RedisCacheHandler
 ) -> game_structs_pb2.GameStatusResponse:
     """Make a move in the game."""
-    raise NotImplementedError()
+    username = request.username
+    session_id = request.session_id
+    user_data = authenticate_session(username, session_id, session_handler)
+    if user_data is None:
+        return game_structs_pb2.GameStatusResponse(
+            success=False,
+            message=AUTHENTICATION_FAILED
+        )
+
+    game_stub = game_map.get(request.game_type)
+    if game_stub is None:
+        return game_structs_pb2.GameStatusResponse(
+            success=False,
+            message=GAME_TYPE_NOT_FOUND.format(request.game_type)
+        )
+
+    user_game_info = game_server_pb2.UserGameInfo(
+        player_id=user_data.user_id,
+        game_id=request.game_id
+    )
+    internal_request = game_server_pb2.MoveRequest(
+        game_info=user_game_info,
+        move=request.move
+    )
+
+    response = game_stub.MakeMove(internal_request)
+    return response
 
 
 def forfeit_game(
-    request: chupacabra_pb2.PlayerGameInfo
+    request: chupacabra_pb2.PlayerGameInfo,
+    game_map: Dict[str, GameServerStub],
+    session_handler: RedisCacheHandler
 ) -> game_structs_pb2.GameStatusResponse:
     """Immediately forfeit the game."""
-    raise NotImplementedError()
+    username = request.username
+    session_id = request.session_id
+    user_data = authenticate_session(username, session_id, session_handler)
+    if user_data is None:
+        return game_structs_pb2.GameStatusResponse(
+            success=False,
+            message=AUTHENTICATION_FAILED
+        )
+
+    game_stub = game_map.get(request.game_type)
+    if game_stub is None:
+        return game_structs_pb2.GameStatusResponse(
+            success=False,
+            message=GAME_TYPE_NOT_FOUND.format(request.game_type)
+        )
+
+    internal_request = game_server_pb2.UserGameInfo(
+        player_id=user_data.user_id,
+        game_id=request.game_id
+    )
+
+    response = game_stub.ForfeitGame(internal_request)
+    return response

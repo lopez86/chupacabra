@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='chupacabra_client/protos/chupacabra.proto',
   package='chupacabra',
   syntax='proto3',
-  serialized_pb=_b('\n)chupacabra_client/protos/chupacabra.proto\x12\nchupacabra\x1a+chupacabra_client/protos/game_structs.proto\"@\n\x0bUserRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x10\n\x08password\x18\x03 \x01(\t\"0\n\x0cUserResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"4\n\x0eSessionRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"G\n\x0fSessionResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\"4\n\x0bGameRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x11\n\tgame_type\x18\x02 \x01(\t\"N\n\x11GameRequestStatus\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x11\n\tgame_type\x18\x02 \x01(\t\x12\x12\n\nrequest_id\x18\x03 \x01(\t\"M\n\x16\x41vailableGamesResponse\x12\x33\n\x0c\x64\x65scriptions\x18\x01 \x03(\x0b\x32\x1d.game_structs.GameDescription\"H\n\x0ePlayerGameInfo\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x11\n\tgame_type\x18\x02 \x01(\t\x12\x0f\n\x07game_id\x18\x03 \x01(\t\"^\n\x0bMoveRequest\x12-\n\tgame_info\x18\x01 \x01(\x0b\x32\x1a.chupacabra.PlayerGameInfo\x12 \n\x04move\x18\x02 \x01(\x0b\x32\x12.game_structs.Move\"A\n\x10GameStateRequest\x12-\n\tgame_info\x18\x01 \x01(\x0b\x32\x1a.chupacabra.PlayerGameInfo2\xe0\x05\n\x10\x43hupacabraServer\x12\x43\n\x0cRegisterUser\x12\x17.chupacabra.UserRequest\x1a\x18.chupacabra.UserResponse\"\x00\x12I\n\x0c\x42\x65ginSession\x12\x1a.chupacabra.SessionRequest\x1a\x1b.chupacabra.SessionResponse\"\x00\x12V\n\x12ListAvailableGames\x12\x1a.chupacabra.PlayerGameInfo\x1a\".chupacabra.AvailableGamesResponse\"\x00\x12K\n\x0bRequestGame\x12\x17.chupacabra.GameRequest\x1a!.game_structs.GameRequestResponse\"\x00\x12\\\n\x10\x43heckGameRequest\x12\x1d.chupacabra.GameRequestStatus\x1a\'.game_structs.GameRequestStatusResponse\"\x00\x12N\n\x0cGetGameState\x12\x1a.chupacabra.PlayerGameInfo\x1a .game_structs.GameStatusResponse\"\x00\x12Q\n\x0f\x43heckLegalMoves\x12\x1a.chupacabra.PlayerGameInfo\x1a .game_structs.LegalMovesResponse\"\x00\x12G\n\x08MakeMove\x12\x17.chupacabra.MoveRequest\x1a .game_structs.GameStatusResponse\"\x00\x12M\n\x0b\x46orfeitGame\x12\x1a.chupacabra.PlayerGameInfo\x1a .game_structs.GameStatusResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n)chupacabra_client/protos/chupacabra.proto\x12\nchupacabra\x1a+chupacabra_client/protos/game_structs.proto\"R\n\x0bUserRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x10\n\x08password\x18\x03 \x01(\t\x12\x10\n\x08nickname\x18\x04 \x01(\t\"0\n\x0cUserResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"4\n\x0eSessionRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"G\n\x0fSessionResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\"F\n\x0bGameRequest\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x11\n\tgame_type\x18\x02 \x01(\t\x12\x10\n\x08username\x18\x03 \x01(\t\"`\n\x11GameRequestStatus\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x11\n\tgame_type\x18\x02 \x01(\t\x12\x12\n\nrequest_id\x18\x03 \x01(\t\x12\x10\n\x08username\x18\x04 \x01(\t\"o\n\x16\x41vailableGamesResponse\x12\x33\n\x0c\x64\x65scriptions\x18\x01 \x03(\x0b\x32\x1d.game_structs.GameDescription\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\x0f\n\x07message\x18\x03 \x01(\t\"Z\n\x0ePlayerGameInfo\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x11\n\tgame_type\x18\x02 \x01(\t\x12\x0f\n\x07game_id\x18\x03 \x01(\t\x12\x10\n\x08username\x18\x04 \x01(\t\"^\n\x0bMoveRequest\x12-\n\tgame_info\x18\x01 \x01(\x0b\x32\x1a.chupacabra.PlayerGameInfo\x12 \n\x04move\x18\x02 \x01(\x0b\x32\x12.game_structs.Move\"A\n\x10GameStateRequest\x12-\n\tgame_info\x18\x01 \x01(\x0b\x32\x1a.chupacabra.PlayerGameInfo2\xe0\x05\n\x10\x43hupacabraServer\x12\x43\n\x0cRegisterUser\x12\x17.chupacabra.UserRequest\x1a\x18.chupacabra.UserResponse\"\x00\x12I\n\x0c\x42\x65ginSession\x12\x1a.chupacabra.SessionRequest\x1a\x1b.chupacabra.SessionResponse\"\x00\x12V\n\x12ListAvailableGames\x12\x1a.chupacabra.PlayerGameInfo\x1a\".chupacabra.AvailableGamesResponse\"\x00\x12K\n\x0bRequestGame\x12\x17.chupacabra.GameRequest\x1a!.game_structs.GameRequestResponse\"\x00\x12\\\n\x10\x43heckGameRequest\x12\x1d.chupacabra.GameRequestStatus\x1a\'.game_structs.GameRequestStatusResponse\"\x00\x12N\n\x0cGetGameState\x12\x1a.chupacabra.PlayerGameInfo\x1a .game_structs.GameStatusResponse\"\x00\x12Q\n\x0f\x43heckLegalMoves\x12\x1a.chupacabra.PlayerGameInfo\x1a .game_structs.LegalMovesResponse\"\x00\x12G\n\x08MakeMove\x12\x17.chupacabra.MoveRequest\x1a .game_structs.GameStatusResponse\"\x00\x12M\n\x0b\x46orfeitGame\x12\x1a.chupacabra.PlayerGameInfo\x1a .game_structs.GameStatusResponse\"\x00\x62\x06proto3')
   ,
   dependencies=[chupacabra__client_dot_protos_dot_game__structs__pb2.DESCRIPTOR,])
 
@@ -55,6 +55,13 @@ _USERREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='nickname', full_name='chupacabra.UserRequest.nickname', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -68,7 +75,7 @@ _USERREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=102,
-  serialized_end=166,
+  serialized_end=184,
 )
 
 
@@ -105,8 +112,8 @@ _USERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=168,
-  serialized_end=216,
+  serialized_start=186,
+  serialized_end=234,
 )
 
 
@@ -143,8 +150,8 @@ _SESSIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=218,
-  serialized_end=270,
+  serialized_start=236,
+  serialized_end=288,
 )
 
 
@@ -188,8 +195,8 @@ _SESSIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=272,
-  serialized_end=343,
+  serialized_start=290,
+  serialized_end=361,
 )
 
 
@@ -214,6 +221,13 @@ _GAMEREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='username', full_name='chupacabra.GameRequest.username', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -226,8 +240,8 @@ _GAMEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=345,
-  serialized_end=397,
+  serialized_start=363,
+  serialized_end=433,
 )
 
 
@@ -259,6 +273,13 @@ _GAMEREQUESTSTATUS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='username', full_name='chupacabra.GameRequestStatus.username', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -271,8 +292,8 @@ _GAMEREQUESTSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=399,
-  serialized_end=477,
+  serialized_start=435,
+  serialized_end=531,
 )
 
 
@@ -290,6 +311,20 @@ _AVAILABLEGAMESRESPONSE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='success', full_name='chupacabra.AvailableGamesResponse.success', index=1,
+      number=2, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='message', full_name='chupacabra.AvailableGamesResponse.message', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -302,8 +337,8 @@ _AVAILABLEGAMESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=479,
-  serialized_end=556,
+  serialized_start=533,
+  serialized_end=644,
 )
 
 
@@ -335,6 +370,13 @@ _PLAYERGAMEINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='username', full_name='chupacabra.PlayerGameInfo.username', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -347,8 +389,8 @@ _PLAYERGAMEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=558,
-  serialized_end=630,
+  serialized_start=646,
+  serialized_end=736,
 )
 
 
@@ -385,8 +427,8 @@ _MOVEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=632,
-  serialized_end=726,
+  serialized_start=738,
+  serialized_end=832,
 )
 
 
@@ -416,8 +458,8 @@ _GAMESTATEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=728,
-  serialized_end=793,
+  serialized_start=834,
+  serialized_end=899,
 )
 
 _AVAILABLEGAMESRESPONSE.fields_by_name['descriptions'].message_type = chupacabra__client_dot_protos_dot_game__structs__pb2._GAMEDESCRIPTION
@@ -514,8 +556,8 @@ _CHUPACABRASERVER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=796,
-  serialized_end=1532,
+  serialized_start=902,
+  serialized_end=1638,
   methods=[
   _descriptor.MethodDescriptor(
     name='RegisterUser',
