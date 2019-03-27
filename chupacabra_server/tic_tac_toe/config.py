@@ -1,56 +1,50 @@
 import json
+import os
 
 from dbs.redis_cache import RedisCacheHandler
+from utils.config_utils import get_variable_with_fallback
 
 
-TICTACTOE_CONFIG_PATH = ''
-DEFAULT_REDIS_HOST = 'localhost'
-DEFAULT_REDIS_PORT = 6379
-DEFAULT_REDIS_DB = 0
+TICTACTOE_CONFIG_PATH = (
+    os.getenv('TICTACTOE_CONFIG_PATH') or
+    os.path.dirname(os.path.abspath(__file__)) + '/config.json'
+)
+
+TICTACTOE_REDIS_HOST = 'TICTACTOE_REDIS_HOST'
+TICTACTOE_REDIS_PORT = 'TICTACTOE_REDIS_PORT'
+TICTACTOE_REDIS_DB = 'TICTACTOE_REDIS_DB'
 
 
 class TicTacToeConfig:
-    def __init__(self) -> None:
+    def __init__(self, config_file_path: str) -> None:
         """Configuration data for Tic Tac Toe"""
-        self.redis_host = DEFAULT_REDIS_HOST
-        self.redis_port = DEFAULT_REDIS_PORT
-        self.redis_db = DEFAULT_REDIS_DB
-
-    @staticmethod
-    def build_from_file(path: str) -> 'TicTacToeConfig':
-        """Build the config from a json file."""
-
-        if path:
-            with open(path) as input_file:
-                config_data = json.load(input_file)
+        if config_file_path:
+            with open(config_file_path) as config_file:
+                config_data = json.load(config_file)
         else:
             config_data = {}
 
-        config = TicTacToeConfig()
-        redis_host = config_data.get('redis_host')
-        if redis_host:
-            config.redis_host = redis_host
-        redis_port = config_data.get('redis_port')
-        if redis_port:
-            config.redis_port = redis_port
-        redis_db = config_data.get('redis_db')
-        if redis_db:
-            config.redis_db = redis_db
-        return config
+        self.redis_host = get_variable_with_fallback(TICTACTOE_REDIS_HOST, config_data)
+        self.redis_port = get_variable_with_fallback(TICTACTOE_REDIS_PORT, config_data)
+        self.redis_db = get_variable_with_fallback(TICTACTOE_REDIS_DB, config_data)
 
 
 # Standard configuration
-TICTACTOE_CONFIG = TicTacToeConfig.build_from_file(TICTACTOE_CONFIG_PATH)
+TICTACTOE_CONFIG = TicTacToeConfig(TICTACTOE_CONFIG_PATH)
 
 
-# Get the standard config
-def get_config() -> TicTacToeConfig:
+def get_default_tictactoe_config() -> TicTacToeConfig:
+    """Get the default configuration"""
     return TICTACTOE_CONFIG
 
 
-# Get the redis handler for the Tic Tac Toe server
-def get_redis_handler():
-    config = get_config()
-    return RedisCacheHandler(
-        config.redis_host, config.redis_port, config.redis_db
-    )
+TICTACTOE_REDIS_HANDLER = RedisCacheHandler(
+    TICTACTOE_CONFIG.redis_host,
+    TICTACTOE_CONFIG.redis_port,
+    TICTACTOE_CONFIG.redis_db
+)
+
+
+def get_default_tictactoe_cache_handler() -> RedisCacheHandler:
+    """Get the default redis handler for the Tic Tac Toe server."""
+    return TICTACTOE_REDIS_HANDLER

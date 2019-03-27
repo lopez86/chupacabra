@@ -10,7 +10,7 @@ from dbs.redis_cache import RedisCacheHandler
 from game_server.game_servicer import GameImplementation
 from protos import game_server_pb2
 from tic_tac_toe import tic_tac_toe_game as ttt
-from tic_tac_toe.config import get_redis_handler
+from tic_tac_toe.config import get_default_tictactoe_cache_handler
 from tic_tac_toe import description
 
 
@@ -305,7 +305,7 @@ def request_game(
     request: game_server_pb2.GameRequest
 ) -> game_structs_pb2.GameRequestResponse:
     """Request a game."""
-    handler = get_redis_handler()
+    handler = get_default_tictactoe_cache_handler()
 
     # Set a random number seed based on the fractional second part
     # of the timestamp. This makes it more reliable on higher loads compared
@@ -483,7 +483,7 @@ def check_game_request(
 ) -> game_structs_pb2.GameRequestStatusResponse:
     """Check if the request has been completed."""
     # Check if the request --> game mapping has been found
-    redis_handler = get_redis_handler()
+    redis_handler = get_default_tictactoe_cache_handler()
     key = _make_request_key(request.request_id, request.player_id)
     data_string = redis_handler.get(key)
     if data_string is None:
@@ -544,7 +544,7 @@ def make_move(
     request: game_server_pb2.MoveRequest
 ) -> game_structs_pb2.GameStatusResponse:
     """Make a move."""
-    handler = get_redis_handler()
+    handler = get_default_tictactoe_cache_handler()
     validated = _validate_game(
         request.game_info.game_id,
         request.game_info.player_id,
@@ -604,7 +604,7 @@ def get_game_status(
     request: game_server_pb2.UserGameInfo
 ) -> game_structs_pb2.GameStatusResponse:
     """Get the current status of the game."""
-    handler = get_redis_handler()
+    handler = get_default_tictactoe_cache_handler()
     lock_key = _make_state_lock_key(request.game_id)
     with handler.lock(lock_key, TTT_MOVE_BLOCK_TIME):
         message, internal_state, save_new_state = _get_game_state(
@@ -641,7 +641,7 @@ def get_legal_moves(
     request: game_server_pb2.UserGameInfo
 ) -> game_structs_pb2.LegalMovesResponse:
     """Get all the possible moves the player can make at the current time."""
-    handler = get_redis_handler()
+    handler = get_default_tictactoe_cache_handler()
     lock_key = _make_state_lock_key(request.game_id)
     with handler.lock(lock_key, TTT_MOVE_BLOCK_TIME):
         message, internal_state, save_new_state = _get_game_state(
@@ -690,7 +690,7 @@ def forfeit_game(
     request: game_server_pb2.UserGameInfo
 ) -> game_structs_pb2.GameStatusResponse:
     """Forfeit the game."""
-    handler = get_redis_handler()
+    handler = get_default_tictactoe_cache_handler()
     validated = _validate_game(
         request.game_id,
         request.player_id,

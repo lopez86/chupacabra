@@ -11,7 +11,7 @@ CHECK_USER_QUERY = """
 SELECT username, email
 FROM user_auth
 WHERE
-username='{}' OR 
+username='{}' OR
 email='{}'
 """
 
