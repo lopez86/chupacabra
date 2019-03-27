@@ -222,8 +222,8 @@ def make_move(
     session_handler: RedisCacheHandler
 ) -> game_structs_pb2.GameStatusResponse:
     """Make a move in the game."""
-    username = request.username
-    session_id = request.session_id
+    username = request.game_info.username
+    session_id = request.game_info.session_id
     user_data = authenticate_session(username, session_id, session_handler)
     if user_data is None:
         return game_structs_pb2.GameStatusResponse(
@@ -231,16 +231,16 @@ def make_move(
             message=AUTHENTICATION_FAILED
         )
 
-    game_stub = game_map.get(request.game_type)
+    game_stub = game_map.get(request.game_info.game_type)
     if game_stub is None:
         return game_structs_pb2.GameStatusResponse(
             success=False,
-            message=GAME_TYPE_NOT_FOUND.format(request.game_type)
+            message=GAME_TYPE_NOT_FOUND.format(request.game_info.game_type)
         )
 
     user_game_info = game_server_pb2.UserGameInfo(
         player_id=user_data.user_id,
-        game_id=request.game_id
+        game_id=request.game_info.game_id
     )
     internal_request = game_server_pb2.MoveRequest(
         game_info=user_game_info,
