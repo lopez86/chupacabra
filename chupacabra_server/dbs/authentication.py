@@ -209,7 +209,7 @@ class AuthenticationServerHandler:
         user_data = self._engine.execute(
             CHECK_USER_AUTH_QUERY.format(username, password_hash)
         ).fetchone()
-        if not user_data != 1:
+        if user_data is None:
             return None
 
         user_auth_data = UserAuthData(

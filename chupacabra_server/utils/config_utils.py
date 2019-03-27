@@ -11,6 +11,6 @@ def get_variable_with_fallback(
     value = os.getenv(variable_name) or fallback_data.get(variable_name)
     if value is None and is_required:
         raise AssertionError(
-            'Environment variable \'{}\' not found.'.format(variable_name))
+            'Required variable \'{}\' not found.'.format(variable_name))
 
     return value

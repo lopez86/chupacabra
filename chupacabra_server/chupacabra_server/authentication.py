@@ -1,7 +1,7 @@
 import json
 import hashlib
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 
 import arrow
 import numpy as np
@@ -23,7 +23,7 @@ def hash_password(
     password: str
 ) -> str:
     """Hash the password. WARNING: Not meant to be up to production standards."""
-    return hashlib.sha256(password)
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 
 def authenticate_user(
@@ -38,30 +38,32 @@ def authenticate_user(
 def create_session(
     user_data: UserAuthData,
     handler: RedisCacheHandler
-) -> Optional[str]:
+) -> Tuple[str, str]:
     """Create a session for a user or get the current active one"""
     # Check if the user has an active session and if so return that
     session_key = user_data.username
     data = handler.get(session_key)
     now = arrow.utcnow().float_timestamp
 
-    if data and now < data['expiration']:
-        return data['session_id']
+    if data:
+        deserialized_data = json.loads(data)
+        if now < deserialized_data['expiration']:
+            return deserialized_data['session_id'], 'Success'
 
     # Get a session id
     seed = int(now * BIG_NUMBER) % BIG_NUMBER
     random_state = np.random.RandomState(seed)
     session_id = str(random_state.randint(BIG_NUMBER))
-    session_data = {
+    session_data = json.dumps({
         'session_id': session_id,
         'user_id': user_data.user_id,
         'username': user_data.username,
         'nickname': user_data.nickname,
         'email': user_data.email,
         'expiration': int(now) + SESSION_LENGTH
-    }
+    })
     handler.set(session_key, session_data, lifetime=SESSION_CACHE_EXPIRATION)
-    return session_id
+    return session_id, 'Success'
 
 
 def authenticate_session(

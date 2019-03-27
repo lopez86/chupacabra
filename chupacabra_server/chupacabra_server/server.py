@@ -2,16 +2,21 @@
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import time
+import sys
 from typing import List
 
 from chupacabra_client.protos.chupacabra_pb2_grpc import add_ChupacabraServerServicer_to_server
 import click
 import grpc
 
+from protos.game_server_pb2_grpc import GameServerStub
 from chupacabra_server.servicer import ChupacabraServicer
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+logger.addHandler(handler)
 
 
 ONE_DAY = 24 * 60 * 60
@@ -36,7 +41,7 @@ def serve(
     server = grpc.server(executor)
 
     game_dict = {
-        game_name: game_server
+        game_name: GameServerStub(grpc.insecure_channel(game_server))
         for game_name, game_server in zip(game_name, game_server)
     }
 

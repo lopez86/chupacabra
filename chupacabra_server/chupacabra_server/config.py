@@ -60,7 +60,7 @@ USER_AUTH_HANDLER = AuthenticationServerHandler(
 SESSION_HANDLER = RedisCacheHandler(
     SERVER_CONFIG.redis_url,
     SERVER_CONFIG.redis_port,
-    SERVER_CONFIG.auth_db
+    SERVER_CONFIG.redis_db
 )
 
 

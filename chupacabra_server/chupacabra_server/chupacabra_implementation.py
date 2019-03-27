@@ -6,7 +6,7 @@ from dbs.authentication import AuthenticationServerHandler
 from dbs.redis_cache import RedisCacheHandler
 from protos import game_server_pb2
 from protos.game_server_pb2_grpc import GameServerStub
-from .authentication import authenticate_session, create_session, hash_password
+from chupacabra_server.authentication import authenticate_session, create_session, hash_password
 
 
 AUTHENTICATION_FAILED = 'Authentication failed.'
@@ -25,7 +25,7 @@ def register_user(
     success, message = handler.add_new_user(username, email, password_hash, nickname)
     response = chupacabra_pb2.UserResponse(
         success=success,
-        response=message
+        message=message
     )
     return response
 
@@ -39,6 +39,11 @@ def begin_session(
     username = request.username
     password_hash = hash_password(request.password)
     user_auth_data = auth_server_handler.check_user_creds(username, password_hash)
+    if user_auth_data is None:
+        return chupacabra_pb2.SessionResponse(
+            success=False,
+            message=AUTHENTICATION_FAILED
+        )
     session_id, message = create_session(user_auth_data, cache_handler)
     if session_id:
         response = chupacabra_pb2.SessionResponse(
