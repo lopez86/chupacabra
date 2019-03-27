@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict
 
 from chupacabra_client.protos.chupacabra_pb2_grpc import ChupacabraServerServicer
@@ -7,6 +8,12 @@ from chupacabra_client.protos import game_structs_pb2
 from chupacabra_server import chupacabra_implementation
 from chupacabra_server.config import get_session_handler, get_user_authentication_handler
 from protos.game_server_pb2_grpc import GameServerStub
+
+
+logger = logging.getLogger(__name__)
+
+
+ERROR_MESSAGE = 'Error during handling of your request'
 
 
 class ChupacabraServicer(ChupacabraServerServicer):
@@ -23,9 +30,13 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> chupacabra_pb2.UserResponse:
         """Try to register a new user."""
-        auth_handler = get_user_authentication_handler()
-        return chupacabra_implementation.register_user(
-            request, auth_handler)
+        try:
+            auth_handler = get_user_authentication_handler()
+            return chupacabra_implementation.register_user(
+                request, auth_handler)
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
 
     def BeginSession(
         self,
@@ -33,11 +44,15 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> chupacabra_pb2.SessionResponse:
         """Begin a new user session (i.e. log in)"""
-        session_handler = get_session_handler()
-        auth_server_handler = get_user_authentication_handler()
-        return chupacabra_implementation.begin_session(
-            request, auth_server_handler, session_handler
-        )
+        try:
+            session_handler = get_session_handler()
+            auth_server_handler = get_user_authentication_handler()
+            return chupacabra_implementation.begin_session(
+                request, auth_server_handler, session_handler
+            )
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
 
     def ListAvailableGames(
         self,
@@ -45,11 +60,15 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> chupacabra_pb2.AvailableGamesResponse:
         """List the available games on this server."""
-        session_handler = get_session_handler()
-        games = list(self._game_map.keys())
-        return chupacabra_implementation.list_available_games(
-            request, games, session_handler
-        )
+        try:
+            session_handler = get_session_handler()
+            games = list(self._game_map.keys())
+            return chupacabra_implementation.list_available_games(
+                request, games, session_handler
+            )
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
 
     def RequestGame(
         self,
@@ -57,10 +76,14 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> game_structs_pb2.GameRequestResponse:
         """Request a new game."""
-        session_handler = get_session_handler()
-        return chupacabra_implementation.request_game(
-            request, self._game_map, session_handler
-        )
+        try:
+            session_handler = get_session_handler()
+            return chupacabra_implementation.request_game(
+                request, self._game_map, session_handler
+            )
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
 
     def CheckGameRequest(
         self,
@@ -68,10 +91,14 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> game_structs_pb2.GameRequestStatusResponse:
         """Check if a game request is finished."""
-        session_handler = get_session_handler()
-        return chupacabra_implementation.check_game_request(
-            request, self._game_map, session_handler
-        )
+        try:
+            session_handler = get_session_handler()
+            return chupacabra_implementation.check_game_request(
+                request, self._game_map, session_handler
+            )
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
 
     def GetGameState(
         self,
@@ -79,10 +106,14 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> game_structs_pb2.GameStatusResponse:
         """Get the state of the current game."""
-        session_handler = get_session_handler()
-        return chupacabra_implementation.check_game_state(
-            request, self._game_map, session_handler
-        )
+        try:
+            session_handler = get_session_handler()
+            return chupacabra_implementation.check_game_state(
+                request, self._game_map, session_handler
+            )
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
 
     def CheckLegalMoves(
         self,
@@ -90,10 +121,14 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> game_structs_pb2.LegalMovesResponse:
         """Check what moves the user can make at this point in the game."""
-        session_handler = get_session_handler()
-        return chupacabra_implementation.check_legal_moves(
-            request, self._game_map, session_handler
-        )
+        try:
+            session_handler = get_session_handler()
+            return chupacabra_implementation.check_legal_moves(
+                request, self._game_map, session_handler
+            )
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
 
     def MakeMove(
         self,
@@ -101,10 +136,14 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> game_structs_pb2.GameStatusResponse:
         """Make a move."""
-        session_handler = get_session_handler()
-        return chupacabra_implementation.make_move(
-            request, self._game_map, session_handler
-        )
+        try:
+            session_handler = get_session_handler()
+            return chupacabra_implementation.make_move(
+                request, self._game_map, session_handler
+            )
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
 
     def ForfeitGame(
         self,
@@ -112,7 +151,11 @@ class ChupacabraServicer(ChupacabraServerServicer):
         context: Any
     ) -> game_structs_pb2.GameStatusResponse:
         """Forfeit the current game."""
-        session_handler = get_session_handler()
-        return chupacabra_implementation.forfeit_game(
-            request, self._game_map, session_handler
-        )
+        try:
+            session_handler = get_session_handler()
+            return chupacabra_implementation.forfeit_game(
+                request, self._game_map, session_handler
+            )
+        except Exception as exception:
+            logger.error(exception)
+            raise AssertionError(ERROR_MESSAGE)
