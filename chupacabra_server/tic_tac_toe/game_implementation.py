@@ -671,7 +671,7 @@ def get_legal_moves(
         )
 
     # Check if it's the player's turn
-    current_player_id = internal_state.players[internal_state.turn].id
+    current_player_id = internal_state.player_ids[internal_state.turn]
     if request.player_id != current_player_id:
         return game_structs_pb2.LegalMovesResponse(
             success=True,

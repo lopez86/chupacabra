@@ -73,17 +73,16 @@ def authenticate_session(
 ) -> Optional[UserAuthData]:
     """Check if a user has passed the correct session data and return user info."""
     session_key = username
-    session_data = handler.get(session_key)
-    if not session_data:
+    session_string = handler.get(session_key)
+    if not session_string:
         return None
-    session_data = json.loads(session_data)
+    session_data = json.loads(session_string)
     if session_data['session_id'] != session_id:
         return None
 
     # Get the timestamp
     now = arrow.utcnow().float_timestamp
     # Load session data
-    session_data = json.loads(session_data)
     if now > session_data['expiration']:
         return None  # This session has expired
 

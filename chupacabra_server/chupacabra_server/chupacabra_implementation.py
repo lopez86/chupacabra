@@ -150,7 +150,7 @@ def check_game_request(
         request_id=request.request_id
     )
 
-    response = game_stub.RequestGame(internal_request)
+    response = game_stub.CheckGameRequest(internal_request)
     return response
 
 
