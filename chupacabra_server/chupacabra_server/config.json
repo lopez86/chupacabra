@@ -1,10 +1,10 @@
 {
-  "SESSION_REDIS_URL": "localhost",
+  "SESSION_REDIS_URL": "redis",
   "SESSION_REDIS_PORT": 6379,
   "SESSION_REDIS_DB": 0,
-  "AUTH_PG_URL": "localhost",
+  "AUTH_PG_URL": "postgres",
   "AUTH_PG_PORT": 5432,
-  "AUTH_PG_DB": "chupacabra",
-  "AUTH_PG_USERNAME": "",
+  "AUTH_PG_DB": "",
+  "AUTH_PG_USERNAME": "postgres",
   "AUTH_PG_PASSWORD": ""
 }

@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  tictactoe:
+    build:
+      context: .
+      dockerfile: chupacabra_server/tic_tac_toe/Dockerfile
+    ports:
+      - "7654:80"
+
+  chupacabra:
+    build:
+      context: .
+      dockerfile: chupacabra_server/chupacabra_server/Dockerfile
+    ports:
+      - "7653:80"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "7652:6379"
+
+  # Really, this should be a persistent db.
+  postgres:
+    build: ./postgres/.
+    ports:
+      - "7651:5432"

@@ -17,11 +17,11 @@ RUN apt-get update && \
 # Install python requirements
 RUN pip install -r requirements.txt
 
-# Expose port 5000
-EXPOSE 5000
+# Expose port 80
+EXPOSE 80
 
 # Set the pythonpath
 ENV PYTHONPATH=/app:/app/chupacabra_server
 
 # Run the command
-CMD ["python", "tic_tac_toe/server.py", "--host=0.0.0.0", "--port=5000"]
+CMD ["python", "tic_tac_toe/server.py", "--host=0.0.0.0", "--port=80"]
