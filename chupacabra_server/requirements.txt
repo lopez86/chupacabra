@@ -1,0 +1,8 @@
+arrow >= 0.12.1
+click >= 6.7
+grpcio >= 1.19
+grpcio-tools >= 1.19
+numpy >= 1.16
+psycopg2-binary >= 2.7.7
+redis >= 3.2
+SQLAlchemy >= 1.2.18
