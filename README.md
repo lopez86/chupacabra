@@ -1,7 +1,6 @@
 # Project Chupacabra
 #### A Simple Online Game Backend in Python
 
-### Note: Still under construction, so nothing really works yet.
 The story of this package started with a simple idea. Gaming websites have been on the web basically since there has been a web. How might someone go about designing and building a backend for a simple gaming website? 
 What would the public API look like? What about the overall backend architecture. 
 As I build this project, I hope to build a system that answers these questions in a way that is simple enough to be able to clearly explain my choices.
@@ -31,6 +30,28 @@ Chupacabra server.
 There is a common API for the game servers to use but other
 than that, they will be left to their own devices
 to figure out how to implement a game.
+
+## Current Functionality
+
+At present the functionality is still somewhat limited.
+ 1) A simple main server that handles authentication
+ 2) A server for two-player games of Tic Tac Toe
+
+This can be easily deployed with `docker-compose`:
+```bash
+cd chupacabra
+docker-compose up --build 
+```
+
+And then the server will be available at `localhost:7653`.
+
+## Future Improvements
+ 1) More documentation & examples. I haven't added much yet.
+ 2) More extensive unit testing and end-to-end testing
+ 3) Game result databases, possibly game move databases
+ 4) More properly defined clients
+ 5) More user-oriented endpoints (logout, change password)
+ 6) mypy support
 
 ## FAQ
  
