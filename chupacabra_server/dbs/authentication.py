@@ -11,8 +11,8 @@ CHECK_USER_QUERY = """
 SELECT username, email
 FROM user_auth
 WHERE
-username='{}' OR
-email='{}'
+username=%s OR
+email=%s
 """
 
 
@@ -28,7 +28,7 @@ CHECK_USER_ID_QUERY = """
 SELECT user_id
 FROM user_auth
 WHERE
-user_id='{}'
+user_id=%s
 """
 
 
@@ -43,7 +43,7 @@ NEW_USER_QUERY = """
 INSERT INTO user_auth
 (username, email, user_id, nickname, password_hash)
 VALUES
-('{}', '{}', '{}', '{}', '{}')
+(%s, %s, %s, %s, %s)
 """
 
 
@@ -52,7 +52,7 @@ CHECK_USER_AUTH_QUERY = """
 SELECT user_id, username, nickname, email
 FROM user_auth
 WHERE
-username='{}' AND password_hash='{}'
+username=%s AND password_hash=%s
 """
 
 
@@ -68,7 +68,7 @@ class CheckUserAuthIndices(IntEnum):
 # Update a user's password
 UPDATE_PASSWORD_QUERY = """
 UPDATE user_auth
-SET password_hash='{}' WHERE user_id='{}'
+SET password_hash=%s WHERE user_id=%s
 """
 
 # Create a new user authentication table if it doesn't exist
@@ -157,7 +157,8 @@ class AuthenticationServerHandler:
         """
         # First check if the username or email has already been used
         results = self._engine.execute(
-            CHECK_USER_QUERY.format(username, email)
+            CHECK_USER_QUERY,
+            (username, email)
         ).fetchall()
         for result in results:
             if result[CheckUserIndices.USERNAME.value] == username:
@@ -174,7 +175,8 @@ class AuthenticationServerHandler:
         for _ in range(MAX_USER_ID_ATTEMPTS):
             proposed_user_id = str(random_state.randint(RANDOMIZATION_SCALE))
             results = self._engine.execute(
-                CHECK_USER_ID_QUERY.format(proposed_user_id)
+                CHECK_USER_ID_QUERY,
+                (proposed_user_id,)
             ).fetchone()
             if not results:
                 user_id = proposed_user_id
@@ -186,7 +188,14 @@ class AuthenticationServerHandler:
 
         # Add the user
         self._engine.execute(
-            NEW_USER_QUERY.format(username, email, user_id, nickname, password_hash)
+            NEW_USER_QUERY,
+            (
+                username,
+                email,
+                user_id,
+                nickname,
+                password_hash
+            )
         )
 
         return True, 'Success'
@@ -207,7 +216,8 @@ class AuthenticationServerHandler:
             maybe(UserAuthData), None if the check fails
         """
         user_data = self._engine.execute(
-            CHECK_USER_AUTH_QUERY.format(username, password_hash)
+            CHECK_USER_AUTH_QUERY,
+            (username, password_hash)
         ).fetchone()
         if user_data is None:
             return None
