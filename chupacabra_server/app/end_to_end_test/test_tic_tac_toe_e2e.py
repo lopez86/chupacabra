@@ -7,11 +7,7 @@ import grpc
 from protos.game_server_pb2 import (
     GameRequest, GameRequestStatusRequest, MoveRequest, UserGameInfo
 )
-from protos.game_server_pb2 import google_dot_protobuf_dot_empty__pb2
 from protos.game_server_pb2_grpc import GameServerStub
-
-
-Empty = google_dot_protobuf_dot_empty__pb2.Empty
 
 
 class TestTicTacToeServer(TestCase):
