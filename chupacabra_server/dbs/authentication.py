@@ -3,17 +3,17 @@ from typing import NamedTuple, Optional, Tuple
 
 import arrow
 import numpy as np
-from sqlalchemy import create_engine
+import sqlalchemy
 
 
 # Check if a username or email is already taken
-CHECK_USER_QUERY = """
+CHECK_USER_QUERY = sqlalchemy.text("""
 SELECT username, email
 FROM user_auth
 WHERE
-username=%s OR
-email=%s
-"""
+  username=:username OR
+  email=:email
+""")
 
 
 class CheckUserIndices(IntEnum):
@@ -24,12 +24,12 @@ class CheckUserIndices(IntEnum):
 
 
 # Check if a user id is already taken
-CHECK_USER_ID_QUERY = """
+CHECK_USER_ID_QUERY = sqlalchemy.text("""
 SELECT user_id
 FROM user_auth
 WHERE
-user_id=%s
-"""
+  user_id=:user_id
+""")
 
 
 class CheckUserIdIndices(IntEnum):
@@ -39,21 +39,22 @@ class CheckUserIdIndices(IntEnum):
 
 
 # Insert a new user into the table
-NEW_USER_QUERY = """
+NEW_USER_QUERY = sqlalchemy.text("""
 INSERT INTO user_auth
 (username, email, user_id, nickname, password_hash)
 VALUES
-(%s, %s, %s, %s, %s)
-"""
+(:username, :email, :user_id, :nickname, :password_hash)
+""")
 
 
 # Check if a user has given the correct password
-CHECK_USER_AUTH_QUERY = """
+CHECK_USER_AUTH_QUERY = sqlalchemy.text("""
 SELECT user_id, username, nickname, email
 FROM user_auth
 WHERE
-username=%s AND password_hash=%s
-"""
+  username=:username AND
+  password_hash=:password_hash
+""")
 
 
 class CheckUserAuthIndices(IntEnum):
@@ -66,13 +67,14 @@ class CheckUserAuthIndices(IntEnum):
 
 
 # Update a user's password
-UPDATE_PASSWORD_QUERY = """
+UPDATE_PASSWORD_QUERY = sqlalchemy.text("""
 UPDATE user_auth
-SET password_hash=%s WHERE user_id=%s
-"""
+SET password_hash=:password_hash
+WHERE user_id=:user_id
+""")
 
 # Create a new user authentication table if it doesn't exist
-CREATE_TABLE_QUERY = """
+CREATE_TABLE_QUERY = sqlalchemy.text("""
 CREATE TABLE IF NOT EXISTS user_auth(
     user_id text PRIMARY KEY,
     username text NOT NULL UNIQUE,
@@ -80,7 +82,7 @@ CREATE TABLE IF NOT EXISTS user_auth(
     nickname text NOT NULL,
     password_hash text NOT NULL
   )
-"""
+""")
 
 # If a proposed user id is taken, retry this many times before failing
 MAX_USER_ID_ATTEMPTS = 5
@@ -117,7 +119,7 @@ class AuthenticationServerHandler:
             username: str, the username for the database (should be a secret)
             password: str, the password for the database (definitely a secret)
         """
-        self._engine = create_engine(
+        self._engine = sqlalchemy.create_engine(
             'postgres://{}:{}@{}:{}/{}'.format(username, password, url, port, db)
         )
 
@@ -158,7 +160,8 @@ class AuthenticationServerHandler:
         # First check if the username or email has already been used
         results = self._engine.execute(
             CHECK_USER_QUERY,
-            (username, email)
+            username=username,
+            email=email
         ).fetchall()
         for result in results:
             if result[CheckUserIndices.USERNAME.value] == username:
@@ -176,7 +179,7 @@ class AuthenticationServerHandler:
             proposed_user_id = str(random_state.randint(RANDOMIZATION_SCALE))
             results = self._engine.execute(
                 CHECK_USER_ID_QUERY,
-                (proposed_user_id,)
+                user_id=proposed_user_id
             ).fetchone()
             if not results:
                 user_id = proposed_user_id
@@ -189,13 +192,11 @@ class AuthenticationServerHandler:
         # Add the user
         self._engine.execute(
             NEW_USER_QUERY,
-            (
-                username,
-                email,
-                user_id,
-                nickname,
-                password_hash
-            )
+            username=username,
+            email=email,
+            user_id=user_id,
+            nickname=nickname,
+            password_hash=password_hash
         )
 
         return True, 'Success'
@@ -217,7 +218,8 @@ class AuthenticationServerHandler:
         """
         user_data = self._engine.execute(
             CHECK_USER_AUTH_QUERY,
-            (username, password_hash)
+            username=username,
+            password_hash=password_hash
         ).fetchone()
         if user_data is None:
             return None
