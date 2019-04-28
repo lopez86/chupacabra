@@ -3,14 +3,14 @@ services:
   tictactoe:
     build:
       context: .
-      dockerfile: chupacabra_server/tic_tac_toe/Dockerfile
+      dockerfile: chupacabra_server/app/tic_tac_toe/Dockerfile
     ports:
       - "7654:80"
 
   chupacabra:
     build:
       context: .
-      dockerfile: chupacabra_server/chupacabra_server/Dockerfile
+      dockerfile: chupacabra_server/app/chupacabra_server/Dockerfile
     ports:
       - "7653:80"
 
