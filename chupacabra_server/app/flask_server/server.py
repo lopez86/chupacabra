@@ -22,7 +22,7 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
 
     @app.route('/RegisterUser', methods=('POST',))
     def register_user():
-        print('Got request')
+        """Register a new user."""
         json_data = flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
@@ -30,13 +30,11 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
         )
         response = stub.RegisterUser(grpc_request)
         json_output = json_format.MessageToJson(response)
-        print('Outputting: ')
-        print(json_output)
         return json_output
 
     @app.route('/BeginSession', methods=('POST',))
     def begin_session():
-
+        """Begin a new session"""
         json_data = flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
@@ -48,6 +46,7 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
 
     @app.route('/ListAvailableGames', methods=('POST',))
     def list_available_games():
+        """List any available games."""
         json_data =flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
@@ -59,6 +58,7 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
 
     @app.route('/RequestGame', methods=('POST',))
     def request_game():
+        """Request a game"""
         json_data = flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
@@ -70,6 +70,7 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
 
     @app.route('/CheckGameRequest', methods=('POST',))
     def check_game_request():
+        """Check the game request"""
         json_data = flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
@@ -81,6 +82,7 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
 
     @app.route('/GetGameState', methods=('POST',))
     def get_game_state():
+        """Get the state of the current game"""
         json_data = flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
@@ -92,6 +94,7 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
 
     @app.route('/CheckLegalMoves', methods=('POST',))
     def check_legal_moves():
+        """Check what types of moves are legal at this point."""
         json_data = flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
@@ -103,6 +106,7 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
 
     @app.route('/MakeMove', methods=('POST',))
     def make_move():
+        """Make a move."""
         json_data = flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
@@ -114,6 +118,7 @@ def create_app(grpc_host: str, grpc_port: int) -> flask.Flask:
 
     @app.route('/ForfeitGame', methods=('POST',))
     def forfeit_game():
+        """Forfeit the game."""
         json_data = flask.request.get_json()
         grpc_request = json_format.Parse(
             json_data,
