@@ -1,8 +1,7 @@
 from enum import IntEnum
-from typing import NamedTuple, Optional, Tuple
+import secrets
+from typing import Callable, NamedTuple, Optional, Tuple
 
-import arrow
-import numpy as np
 import sqlalchemy
 
 
@@ -49,11 +48,10 @@ VALUES
 
 # Check if a user has given the correct password
 CHECK_USER_AUTH_QUERY = sqlalchemy.text("""
-SELECT user_id, username, nickname, email
+SELECT user_id, username, nickname, email, password_hash
 FROM user_auth
 WHERE
-  username=:username AND
-  password_hash=:password_hash
+  username=:username
 """)
 
 
@@ -64,6 +62,7 @@ class CheckUserAuthIndices(IntEnum):
     USERNAME = 1
     NICKNAME = 2
     EMAIL = 3
+    HASH = 4
 
 
 # Update a user's password
@@ -86,8 +85,6 @@ CREATE TABLE IF NOT EXISTS user_auth(
 
 # If a proposed user id is taken, retry this many times before failing
 MAX_USER_ID_ATTEMPTS = 5
-# User IDs are random ints right now. They are less than this value
-RANDOMIZATION_SCALE = 1000000000
 
 
 class UserAuthData(NamedTuple):
@@ -171,12 +168,10 @@ class AuthenticationServerHandler:
 
         # Now set up the random state to get a user id
         user_id = ''
-        time = int(arrow.utcnow().float_timestamp * RANDOMIZATION_SCALE) % RANDOMIZATION_SCALE
-        random_state = np.random.RandomState(time)
         # Propose a user id and check if it's available. On some number of failures
         # just fail.
         for _ in range(MAX_USER_ID_ATTEMPTS):
-            proposed_user_id = str(random_state.randint(RANDOMIZATION_SCALE))
+            proposed_user_id = secrets.token_hex(8)  # 64-bit
             results = self._engine.execute(
                 CHECK_USER_ID_QUERY,
                 user_id=proposed_user_id
@@ -204,14 +199,16 @@ class AuthenticationServerHandler:
     def check_user_creds(
         self,
         username: str,
-        password_hash: str
+        password: str,
+        password_checker: Callable[[str, str], bool]
     ) -> Optional[UserAuthData]:
         """Check if the user passed in valid credentials
 
         Args:
             username: str, the username
-            password_hash: str, a hash of the original password entered
+            password: str, a hash of the original password entered
                 by the user
+            password_checker: function of (hash, password) to bool
 
         Returns:
             maybe(UserAuthData), None if the check fails
@@ -219,9 +216,12 @@ class AuthenticationServerHandler:
         user_data = self._engine.execute(
             CHECK_USER_AUTH_QUERY,
             username=username,
-            password_hash=password_hash
         ).fetchone()
         if user_data is None:
+            return None
+
+        hash = user_data[CheckUserAuthIndices.HASH.value]
+        if not password_checker(hash, password):
             return None
 
         user_auth_data = UserAuthData(

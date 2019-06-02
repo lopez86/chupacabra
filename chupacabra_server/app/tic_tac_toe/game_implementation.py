@@ -1,5 +1,6 @@
 import json
 import logging
+import secrets
 from typing import List, Optional, Tuple
 
 import arrow
@@ -24,7 +25,6 @@ REQUEST_LIFETIME = 60  # 1 minutes
 QUEUE_LIFETIME = 90  # 1.5 minutes
 GAME_PADDED_LIFETIME = GAME_PERSISTENCE_TIME - ttt.GAME_LIFETIME
 
-MAX_REQUEST_VALUE = 2000000000
 MAX_REQUEST_ID_ATTEMPTS = 10
 
 
@@ -271,12 +271,11 @@ def _convert_to_status_response(
 def _generate_request_id(
     handler: RedisCacheHandler,
     player_id: str,
-    random_state: np.random.RandomState
 ) -> Optional[str]:
     """Generate a request id"""
     request_id = None
     for _ in range(MAX_REQUEST_ID_ATTEMPTS):
-        proposed_request_id = str(random_state.randint(1, MAX_REQUEST_VALUE))
+        proposed_request_id = secrets.token_urlsafe(32)
         request_key = _make_request_key(proposed_request_id, player_id)
         existing_data = handler.get(request_key)
         if existing_data is None:
@@ -287,12 +286,11 @@ def _generate_request_id(
 
 def _generate_game_id(
     handler: RedisCacheHandler,
-    random_state: np.random.RandomState
 ) -> Optional[str]:
     """Generate a game id"""
     game_id = None
     for _ in range(MAX_REQUEST_ID_ATTEMPTS):
-        proposed_game_id = str(random_state.randint(1, MAX_REQUEST_VALUE))
+        proposed_game_id = secrets.token_urlsafe(32)
         game_key = _make_state_key(proposed_game_id)
         existing_data = handler.get(game_key)
         if existing_data is None:
@@ -317,7 +315,7 @@ def request_game(
     # Lock the requests
     with handler.lock(REQUEST_QUEUE_LOCK_KEY, TTT_REQUEST_BLOCK_TIME):
         # Generate a request id
-        request_id = _generate_request_id(handler, request.player_id, random_state)
+        request_id = _generate_request_id(handler, request.player_id)
         if request_id is None:
             return game_structs_pb2.GameRequestResponse(
                 success=False,
@@ -349,7 +347,7 @@ def request_game(
                     )
 
             # Generate game id
-            game_id = _generate_game_id(handler, random_state)
+            game_id = _generate_game_id(handler)
 
             if game_id is None:
                 return game_structs_pb2.GameRequestResponse(

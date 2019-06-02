@@ -105,6 +105,7 @@ class RedisCacheHandler:
         return True
 
     def _get_validated_inputs(self, key: Any, data: Any) -> Tuple[str, str]:
+        """Serialize and validate an input key and data"""
         if self._key_serializer is not None:
             serialized_key = self._key_serializer(key)
         else:

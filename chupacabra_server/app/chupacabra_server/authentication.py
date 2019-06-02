@@ -1,10 +1,10 @@
 import json
-import hashlib
 import logging
+import secrets
 from typing import Optional, Tuple
 
 import arrow
-import numpy as np
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from dbs.authentication import AuthenticationServerHandler, UserAuthData
 from dbs.redis_cache import RedisCacheHandler
@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 SESSION_ATTEMPT_RETRIES = 5
-BIG_NUMBER = 1000000000
 SESSION_LENGTH = 12 * 60 * 60  # 12 hours
 SESSION_CACHE_EXPIRATION = SESSION_LENGTH + 5
 
@@ -23,16 +22,16 @@ def hash_password(
     password: str
 ) -> str:
     """Hash the password. WARNING: Not meant to be up to production standards."""
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    return generate_password_hash(password)
 
 
 def authenticate_user(
     username: str,
-    password_hash: str,
+    password: str,
     handler: AuthenticationServerHandler
 ) -> Optional[UserAuthData]:
     """Check if the user has passed in the right credentials."""
-    return handler.check_user_creds(username, password_hash)
+    return handler.check_user_creds(username, password, check_password_hash)
 
 
 def create_session(
@@ -51,9 +50,7 @@ def create_session(
             return deserialized_data['session_id'], 'Success'
 
     # Get a session id
-    seed = int(now * BIG_NUMBER) % BIG_NUMBER
-    random_state = np.random.RandomState(seed)
-    session_id = str(random_state.randint(BIG_NUMBER))
+    session_id = secrets.token_hex(8)
     session_data = json.dumps({
         'session_id': session_id,
         'user_id': user_data.user_id,
