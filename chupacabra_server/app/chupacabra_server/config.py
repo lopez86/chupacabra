@@ -1,9 +1,16 @@
 import json
 import os
 
-from dbs.authentication import AuthenticationServerHandler
+from dbs.keyvalue_session import KeyValueSessionHandler
+from dbs.postgres_auth import PostgresAuthenticationHandler
 from dbs.redis_cache import RedisCacheHandler
+from dbs.session import SessionHandler
 from utils.config_utils import get_variable_with_fallback
+
+
+# Session cache params
+SESSION_LENGTH = 12 * 60 * 60  # 12 hours
+SESSION_CACHE_EXPIRATION = SESSION_LENGTH + 5
 
 
 SERVER_CONFIG_PATH = (
@@ -49,7 +56,7 @@ def get_default_server_config() -> ChupacabraServerConfig:
     return SERVER_CONFIG
 
 
-USER_AUTH_HANDLER = AuthenticationServerHandler(
+USER_AUTH_HANDLER = PostgresAuthenticationHandler(
     SERVER_CONFIG.auth_url,
     SERVER_CONFIG.auth_port,
     SERVER_CONFIG.auth_db,
@@ -57,18 +64,24 @@ USER_AUTH_HANDLER = AuthenticationServerHandler(
     SERVER_CONFIG.auth_password
 )
 
-SESSION_HANDLER = RedisCacheHandler(
+SESSION_REDIS = RedisCacheHandler(
     SERVER_CONFIG.redis_url,
     SERVER_CONFIG.redis_port,
     SERVER_CONFIG.redis_db
 )
 
+SESSION_HANDLER = KeyValueSessionHandler(
+    SESSION_REDIS,
+    SESSION_LENGTH,
+    SESSION_CACHE_EXPIRATION
+)
 
-def get_user_authentication_handler() -> AuthenticationServerHandler:
+
+def get_user_authentication_handler() -> PostgresAuthenticationHandler:
     """Get a handler for the user authentication server"""
     return USER_AUTH_HANDLER
 
 
-def get_session_handler() -> RedisCacheHandler:
+def get_session_handler() -> SessionHandler:
     """Get a handler for the session cache handler"""
     return SESSION_HANDLER

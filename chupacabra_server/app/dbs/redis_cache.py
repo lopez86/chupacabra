@@ -3,8 +3,10 @@ from typing import Any, Callable, Generator, Tuple
 
 from redis import StrictRedis
 
+from dbs.keyvalue_store import KeyValueStore
 
-class RedisCacheHandler:
+
+class RedisCacheHandler(KeyValueStore):
     def __init__(
         self,
         host: str,
