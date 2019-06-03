@@ -16,6 +16,15 @@ class KeyValueSessionHandler(SessionHandler):
         session_length: int,
         session_cache_expiration: int
     ) -> None:
+        """A SessionHandler backed by a key-value store.
+
+        Args:
+            store: KeyValueStore, a storage structure for the session data.
+               currently this is assumed to take and return json blobs
+            session_length: int, the lifetime of a session in seconds
+            session_cache_expiration: int, the time before the cache should
+                evict the session data
+        """
         self._store = store
         self._session_length = session_length
         self._session_cache_expiration = session_cache_expiration

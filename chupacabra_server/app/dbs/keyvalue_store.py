@@ -3,6 +3,8 @@ from contextlib import AbstractContextManager, contextmanager
 from typing import Any, Generator
 
 class KeyValueStore(abc.ABC):
+    """An abstract key value store with get, set, delete, and lock operations."""
+
     @abc.abstractmethod
     def get(self, key: Any) -> Any:
         """Get a value given its key."""
